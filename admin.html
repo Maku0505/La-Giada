@@ -93,7 +93,7 @@ body{background:#0a0908;color:#e8e0d0;font-family:Georgia,serif;min-height:100vh
   <div class="top-bar">
     <h1>📋 菜单管理 <span class="sync-badge" id="sync-badge"></span></h1>
     <div class="top-bar-right">
-      <button class="seed-btn" id="seed-btn" title="加载默认菜品">⬇️ 加载菜品</button>
+      <button class="seed-btn" id="seed-btn" style="display:none" title="首次加载菜品">⬇️ 加载菜品</button>
       <button class="add-btn" id="add-btn">+ 新增菜品</button>
       <button class="logout-btn" id="logout-btn">退出</button>
     </div>
@@ -229,6 +229,9 @@ function startSync(){
   setSyncBadge("⏳ 同步中...", false);
   unsub = onSnapshot(collection(db, "menu"), snap => {
     allItems = snap.docs.map(d => ({docId: d.id, ...d.data()}));
+    // Show seed button only if menu is empty
+    const sb = document.getElementById("seed-btn");
+    if(sb) sb.style.display = snap.empty ? "block" : "none";
     // Sort by category order then by n
     allItems.sort((a,b) => {
       const ci = CATS.findIndex(c=>c.id===a.catId) - CATS.findIndex(c=>c.id===b.catId);
@@ -312,10 +315,11 @@ function populateCatSelect(){
 
 document.getElementById("add-btn").addEventListener("click", () => openModal(null));
 document.getElementById("seed-btn").addEventListener("click", async () => {
-  if(!confirm("将所有默认菜品加载到 Firebase？现有菜品不会被覆盖。")) return;
+  if(!confirm("将所有默认菜品加载到 Firebase？")) return;
   setSyncBadge("⏳ 加载中...", false);
-  await seedIfEmpty(true); // force=true
+  await seedIfEmpty(true);
 });
+// seed button hidden - use seedIfEmpty() from console if needed
 document.getElementById("modal-cancel").addEventListener("click", closeModal);
 document.getElementById("modal-overlay").addEventListener("click", e => {
   if(e.target === document.getElementById("modal-overlay")) closeModal();
