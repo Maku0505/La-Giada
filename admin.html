@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Giada — Gestione Menù</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0908;color:#e8e0d0;font-family:Georgia,serif;min-height:100vh}
+
+/* LOGIN */
+#login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:20px;padding:24px}
+#login-screen h1{font-size:28px;color:#c9a96e;letter-spacing:3px}
+#login-screen p{font-size:12px;color:#666;letter-spacing:2px;text-transform:uppercase}
+#pin-input{width:180px;padding:14px;text-align:center;font-size:28px;letter-spacing:10px;background:#1a1610;border:2px solid #3a2a10;border-radius:10px;color:#f5e6c8;outline:none;font-family:monospace}
+#pin-input:focus{border-color:#c9a96e}
+#pin-err{color:#e05555;font-size:13px;min-height:18px}
+.login-btn{padding:12px 32px;background:#c9a96e;color:#0f0e0c;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+
+/* MAIN PANEL */
+#main{display:none;flex-direction:column;min-height:100vh}
+.top-bar{background:#1a1208;border-bottom:1px solid #3a2a10;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.top-bar h1{font-size:18px;color:#c9a96e;letter-spacing:1px}
+.top-bar-right{display:flex;gap:10px;align-items:center}
+.add-btn{padding:8px 16px;background:#c9a96e;color:#0f0e0c;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.logout-btn{padding:7px 14px;background:none;border:1px solid #3a2a10;color:#888;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit}
+
+/* CATEGORY TABS */
+.cat-tabs{display:flex;gap:6px;padding:12px 16px;overflow-x:auto;background:#0d0c0a;border-bottom:1px solid #1a1610;scrollbar-width:none;flex-shrink:0}
+.cat-tabs::-webkit-scrollbar{display:none}
+.cat-tab{flex-shrink:0;padding:5px 13px;border-radius:20px;border:1px solid #252010;background:transparent;color:#777;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .15s}
+.cat-tab.active{border-color:#c9a96e;background:rgba(201,169,110,.12);color:#c9a96e}
+
+/* ITEMS LIST */
+.items-wrap{flex:1;padding:14px 16px}
+.item-row{background:#161410;border:1px solid #1e1a12;border-radius:10px;margin-bottom:10px;overflow:hidden;transition:opacity .2s}
+.item-row.sospeso{opacity:.45}
+.item-head{display:flex;align-items:center;padding:12px 14px;gap:10px}
+.item-num{font-size:10px;color:#c9a96e;background:rgba(201,169,110,.1);border:1px solid rgba(201,169,110,.2);padding:2px 6px;border-radius:3px;font-family:monospace;flex-shrink:0}
+.item-name{flex:1;font-size:14px;color:#f0e8d8;font-weight:600}
+.item-price{color:#c9a96e;font-weight:700;font-size:14px;flex-shrink:0}
+.item-desc{padding:0 14px 8px;font-size:12px;color:#666;line-height:1.5}
+.item-actions{display:flex;gap:6px;padding:8px 14px;border-top:1px solid #1a1610;justify-content:flex-end}
+.act-btn{padding:5px 12px;border-radius:6px;border:1px solid #2a2010;background:transparent;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s}
+.act-edit{color:#6ab0f5;border-color:#1a3050}
+.act-edit:hover{background:rgba(106,176,245,.1)}
+.act-suspend{color:#f5a623;border-color:#3a2810}
+.act-suspend:hover{background:rgba(245,166,35,.08)}
+.act-delete{color:#e05555;border-color:#3a1010}
+.act-delete:hover{background:rgba(224,85,85,.08)}
+.badge-sospeso{font-size:10px;color:#f5a623;border:1px solid #f5a62344;padding:1px 6px;border-radius:3px;margin-left:4px}
+
+/* MODAL */
+#modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;align-items:flex-end;justify-content:center}
+#modal-overlay.open{display:flex}
+#modal{background:#131108;border-top:2px solid #3a2a10;border-radius:16px 16px 0 0;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;padding:20px}
+.modal-title{font-size:18px;color:#f5e6c8;font-weight:700;margin-bottom:18px}
+.fgroup{margin-bottom:14px}
+.flabel{font-size:11px;color:#888;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;display:block}
+.finput,.fselect,.ftextarea{width:100%;padding:10px 12px;background:#1a1610;border:1px solid #2a2010;border-radius:6px;color:#e8e0d0;font-size:14px;font-family:inherit;outline:none}
+.finput:focus,.fselect:focus,.ftextarea:focus{border-color:#c9a96e}
+.ftextarea{resize:vertical;min-height:60px}
+.fselect option{background:#1a1610}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-btns{display:flex;gap:10px;margin-top:18px}
+.modal-save{flex:1;padding:12px;background:#c9a96e;color:#0f0e0c;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+.modal-cancel{padding:12px 20px;background:none;border:1px solid #3a2a10;color:#888;border-radius:8px;font-size:14px;cursor:pointer;font-family:inherit}
+
+.sync-badge{font-size:11px;color:#4caf50;margin-left:8px}
+.sync-badge.err{color:#e05555}
+
+.empty-msg{text-align:center;color:#555;padding:48px;font-size:14px}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#c9a96e;color:#0f0e0c;padding:10px 22px;border-radius:24px;font-size:13px;font-weight:700;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <h1>La Giada</h1>
+  <p>Gestione Menù</p>
+  <input id="pin-input" type="password" maxlength="10" placeholder="••••">
+  <div id="pin-err"></div>
+  <button class="login-btn" id="login-btn">Accedi</button>
+</div>
+
+<!-- MAIN PANEL -->
+<div id="main">
+  <div class="top-bar">
+    <h1>📋 Gestione Menù <span class="sync-badge" id="sync-badge"></span></h1>
+    <div class="top-bar-right">
+      <button class="add-btn" id="add-btn">+ Nuovo piatto</button>
+      <button class="logout-btn" id="logout-btn">Esci</button>
+    </div>
+  </div>
+  <div class="cat-tabs" id="cat-tabs"></div>
+  <div class="items-wrap" id="items-wrap"><div class="empty-msg">Caricamento...</div></div>
+</div>
+
+<!-- MODAL -->
+<div id="modal-overlay">
+  <div id="modal">
+    <div class="modal-title" id="modal-title">Nuovo piatto</div>
+    <div class="frow">
+      <div class="fgroup">
+        <label class="flabel">Numero (es. 42)</label>
+        <input class="finput" id="f-n" type="text" placeholder="Es. 42">
+      </div>
+      <div class="fgroup">
+        <label class="flabel">Prezzo (€)</label>
+        <input class="finput" id="f-price" type="number" step="0.50" min="0" placeholder="6.00">
+      </div>
+    </div>
+    <div class="fgroup">
+      <label class="flabel">Nome piatto</label>
+      <input class="finput" id="f-name" type="text" placeholder="Es. Pollo al Curry">
+    </div>
+    <div class="fgroup">
+      <label class="flabel">Descrizione / Ingredienti</label>
+      <textarea class="ftextarea" id="f-desc" placeholder="Es. Bambu, cipolla, salsa curry"></textarea>
+    </div>
+    <div class="frow">
+      <div class="fgroup">
+        <label class="flabel">Categoria</label>
+        <select class="fselect" id="f-cat"></select>
+      </div>
+      <div class="fgroup">
+        <label class="flabel">Quantità (es. 2pz)</label>
+        <input class="finput" id="f-qty" type="text" placeholder="opzionale">
+      </div>
+    </div>
+    <div class="fgroup">
+      <label class="flabel">Surgelato</label>
+      <select class="fselect" id="f-frozen">
+        <option value="0">No</option>
+        <option value="1">Sì ❄</option>
+      </select>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-cancel" id="modal-cancel">Annulla</button>
+      <button class="modal-save" id="modal-save">Salva</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDJ0uQcIel_t54APpZ1QiyNvgnQCBSGwhc",
+  authDomain: "lagia-bdd78.firebaseapp.com",
+  projectId: "lagia-bdd78",
+  storageBucket: "lagia-bdd78.firebasestorage.app",
+  messagingSenderId: "976968741464",
+  appId: "1:976968741494:web:e02ea39018a6fb8979502d"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+// ── CATEGORIES (fixed) ────────────────────────────────────────────────────────
+const CATS = [
+  {id:"antipasti",  label:"Antipasti",   icon:"🥢"},
+  {id:"box",        label:"Menu Box",    icon:"📦"},
+  {id:"poke",       label:"Poke Bowl",   icon:"🥗"},
+  {id:"riso-pasta", label:"Riso e Pasta",icon:"🍜"},
+  {id:"pollo",      label:"Pollo",       icon:"🍗"},
+  {id:"maiale-anatra",label:"Maiale/Anatra",icon:"🦆"},
+  {id:"manzo",      label:"Manzo",       icon:"🥩"},
+  {id:"pesce",      label:"Pesce/Crost.",icon:"🦐"},
+  {id:"contorno",   label:"Contorno",    icon:"🥦"},
+  {id:"nighiri",    label:"Nighiri",     icon:"🍣"},
+  {id:"gunkan",     label:"Gunkan",      icon:"🌊"},
+  {id:"temaki",     label:"Temaki",      icon:"🌮"},
+  {id:"hossomaki",  label:"Hossomaki",   icon:"🌀"},
+  {id:"hosso-fritto",label:"Hosso Fritto",icon:"🔥"},
+  {id:"uramaki",    label:"Uramaki",     icon:"🎯"},
+  {id:"sushi-misto",label:"Sushi Misto", icon:"🎌"},
+  {id:"tartare",    label:"Tartare/Sash.",icon:"🐟"},
+  {id:"cena",       label:"Menu Cena",   icon:"🌙"},
+  {id:"dolci",      label:"Dolci",       icon:"🍡"},
+  {id:"bevande",    label:"Bevande",     icon:"🍺"},
+  {id:"vini",       label:"Vini",        icon:"🍷"},
+  {id:"liquori",    label:"Liquori",     icon:"🥃"},
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let allItems = [];   // [{docId, catId, n, name, desc, price, qty, f, sospeso}]
+let curCat   = "antipasti";
+let editId   = null; // docId being edited (null = new)
+let unsub    = null;
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+const PIN = "8888";
+document.getElementById("login-btn").addEventListener("click", tryLogin);
+document.getElementById("pin-input").addEventListener("keydown", e => { if(e.key==="Enter") tryLogin(); });
+document.getElementById("pin-input").addEventListener("input", e => {
+  document.getElementById("pin-err").textContent = "";
+});
+
+function tryLogin(){
+  const val = document.getElementById("pin-input").value;
+  if(val === PIN){ doLogin(); }
+  else {
+    document.getElementById("pin-err").textContent = "Password errata";
+    document.getElementById("pin-input").value = "";
+  }
+}
+
+function doLogin(){
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("main").style.display = "flex";
+  buildCatTabs();
+  startSync();
+}
+
+document.getElementById("logout-btn").addEventListener("click", () => {
+  if(unsub) unsub();
+  document.getElementById("main").style.display = "none";
+  document.getElementById("login-screen").style.display = "flex";
+  document.getElementById("pin-input").value = "";
+});
+
+// ── CAT TABS ──────────────────────────────────────────────────────────────────
+function buildCatTabs(){
+  document.getElementById("cat-tabs").innerHTML = CATS.map(c =>
+    `<button class="cat-tab${c.id===curCat?" active":""}" data-cat="${c.id}">${c.icon} ${c.label}</button>`
+  ).join("");
+  document.getElementById("cat-tabs").addEventListener("click", e => {
+    const btn = e.target.closest("[data-cat]");
+    if(!btn) return;
+    curCat = btn.dataset.cat;
+    document.querySelectorAll(".cat-tab").forEach(b => b.classList.toggle("active", b.dataset.cat===curCat));
+    renderItems();
+  });
+}
+
+// ── FIRESTORE SYNC ────────────────────────────────────────────────────────────
+function startSync(){
+  setSyncBadge("⏳ sync...", false);
+  unsub = onSnapshot(collection(db, "menu"), snap => {
+    allItems = snap.docs.map(d => ({docId: d.id, ...d.data()}));
+    // Sort by category order then by n
+    allItems.sort((a,b) => {
+      const ci = CATS.findIndex(c=>c.id===a.catId) - CATS.findIndex(c=>c.id===b.catId);
+      if(ci!==0) return ci;
+      return String(a.n).localeCompare(String(b.n), undefined, {numeric:true});
+    });
+    setSyncBadge("● live", false);
+    renderItems();
+  }, err => {
+    setSyncBadge("✗ offline", true);
+  });
+}
+
+function setSyncBadge(txt, isErr){
+  const b = document.getElementById("sync-badge");
+  b.textContent = txt;
+  b.className = "sync-badge" + (isErr?" err":"");
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function renderItems(){
+  const wrap = document.getElementById("items-wrap");
+  const filtered = allItems.filter(it => it.catId === curCat);
+  if(!filtered.length){
+    wrap.innerHTML = '<div class="empty-msg">Nessun piatto in questa categoria.<br>Clicca "+ Nuovo piatto" per aggiungerne uno.</div>';
+    return;
+  }
+  wrap.innerHTML = filtered.map(it => `
+    <div class="item-row${it.sospeso?" sospeso":""}" data-doc="${it.docId}">
+      <div class="item-head">
+        <span class="item-num">${it.n}</span>
+        <span class="item-name">${it.name}${it.sospeso?'<span class="badge-sospeso">SOSPESO</span>':''}</span>
+        ${it.f?'<span style="color:#6ab0f5;font-size:12px">❄</span>':''}
+        ${it.qty?`<span style="color:#888;font-size:11px">${it.qty}</span>`:''}
+        <span class="item-price">€ ${Number(it.price).toFixed(2).replace(".",",")}</span>
+      </div>
+      ${it.desc?`<div class="item-desc">${it.desc}</div>`:''}
+      <div class="item-actions">
+        <button class="act-btn act-edit" data-action="edit" data-doc="${it.docId}">✏️ Modifica</button>
+        <button class="act-btn act-suspend" data-action="suspend" data-doc="${it.docId}">${it.sospeso?"▶️ Riattiva":"⏸ Sospendi"}</button>
+        <button class="act-btn act-delete" data-action="delete" data-doc="${it.docId}">🗑 Elimina</button>
+      </div>
+    </div>`).join("");
+
+  // Event delegation
+  wrap.querySelectorAll("[data-action]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const action = btn.dataset.action;
+      const docId  = btn.dataset.doc;
+      const item   = allItems.find(i => i.docId === docId);
+      if(!item) return;
+      if(action==="edit")    openModal(item);
+      if(action==="suspend") toggleSuspend(item);
+      if(action==="delete")  confirmDelete(item);
+    });
+  });
+}
+
+// ── SUSPEND ───────────────────────────────────────────────────────────────────
+async function toggleSuspend(item){
+  try {
+    await updateDoc(doc(db,"menu",item.docId), {sospeso: !item.sospeso});
+    showToast(item.sospeso ? "Piatto riattivato" : "Piatto sospeso");
+  } catch(e){ alert("Errore: "+e.message); }
+}
+
+// ── DELETE ────────────────────────────────────────────────────────────────────
+function confirmDelete(item){
+  if(!confirm('Eliminare "'+item.name+'"?')) return;
+  deleteDoc(doc(db,"menu",item.docId))
+    .then(()=>showToast("Piatto eliminato"))
+    .catch(e=>alert("Errore: "+e.message));
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function populateCatSelect(){
+  document.getElementById("f-cat").innerHTML = CATS.map(c =>
+    `<option value="${c.id}">${c.icon} ${c.label}</option>`
+  ).join("");
+}
+
+document.getElementById("add-btn").addEventListener("click", () => openModal(null));
+document.getElementById("modal-cancel").addEventListener("click", closeModal);
+document.getElementById("modal-overlay").addEventListener("click", e => {
+  if(e.target === document.getElementById("modal-overlay")) closeModal();
+});
+document.getElementById("modal-save").addEventListener("click", saveItem);
+
+function openModal(item){
+  populateCatSelect();
+  editId = item ? item.docId : null;
+  document.getElementById("modal-title").textContent = item ? "Modifica piatto" : "Nuovo piatto";
+  document.getElementById("f-n").value      = item ? item.n     : "";
+  document.getElementById("f-name").value   = item ? item.name  : "";
+  document.getElementById("f-desc").value   = item ? (item.desc||"") : "";
+  document.getElementById("f-price").value  = item ? item.price : "";
+  document.getElementById("f-qty").value    = item ? (item.qty||"") : "";
+  document.getElementById("f-frozen").value = item ? (item.f?"1":"0") : "0";
+  document.getElementById("f-cat").value    = item ? item.catId : curCat;
+  document.getElementById("modal-overlay").classList.add("open");
+  document.getElementById("f-name").focus();
+}
+
+function closeModal(){
+  document.getElementById("modal-overlay").classList.remove("open");
+  editId = null;
+}
+
+async function saveItem(){
+  const n     = document.getElementById("f-n").value.trim();
+  const name  = document.getElementById("f-name").value.trim();
+  const price = parseFloat(document.getElementById("f-price").value);
+  const desc  = document.getElementById("f-desc").value.trim();
+  const qty   = document.getElementById("f-qty").value.trim();
+  const f     = document.getElementById("f-frozen").value === "1" ? 1 : 0;
+  const catId = document.getElementById("f-cat").value;
+
+  if(!n || !name || isNaN(price)){
+    alert("Numero, nome e prezzo sono obbligatori."); return;
+  }
+
+  const data = { n, name, price, desc, qty, f, catId, sospeso: false,
+    ps: "€ " + price.toFixed(2).replace(".",",") };
+
+  try {
+    if(editId){
+      // Keep sospeso status when editing
+      const existing = allItems.find(i=>i.docId===editId);
+      data.sospeso = existing ? existing.sospeso : false;
+      await updateDoc(doc(db,"menu",editId), data);
+      showToast("Piatto aggiornato ✅");
+    } else {
+      // Generate doc id from catId + n
+      const docId = catId + "_" + n.replace(/[^a-z0-9]/gi,"_");
+      await setDoc(doc(db,"menu",docId), data);
+      showToast("Piatto aggiunto ✅");
+    }
+    closeModal();
+  } catch(e){ alert("Errore salvataggio: "+e.message); }
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 2000);
+}
+
+// ── INIT: seed Firebase with default menu if empty ────────────────────────────
+async function seedIfEmpty(){
+  const snap = await getDocs(collection(db,"menu"));
+  if(!snap.empty) return; // already seeded
+  setSyncBadge("⏳ caricamento dati...", false);
+  const batch = writeBatch(db);
+  const SEED_MENU = [
+  {id:"antipasti",label:"Antipasti",icon:"🥢",items:[
+    {n:"0",  name:"Involtini con Gamberi",         desc:"Farina, carota, cipolla, gamberi",                               price:2.50,ps:"€ 2,50",qty:"2pz",f:1},
+    {n:"1",  name:"Involtini Primavera",            desc:"Farina, carota, cappuccio, carne di maiale, cipolla",           price:2.50,ps:"€ 2,50",qty:"2pz"},
+    {n:"2",  name:"Patatine Fritte",                desc:"",                                                              price:3.00,ps:"€ 3,00",f:1},
+    {n:"3",  name:"Involtini Samosa",               desc:"Ripieno di verdure e curry",                                    price:1.50,ps:"€ 1,50",qty:"3pz",f:1},
+    {n:"3A", name:"Fagottini Fritti",               desc:"Verdure miste",                                                 price:4.00,ps:"€ 4,00",qty:"4pz",f:1},
+    {n:"4",  name:"Pane Cinese",                    desc:"Farina, sale, lievito",                                         price:1.50,ps:"€ 1,50"},
+    {n:"5",  name:"Nuvolette di Gamberi",           desc:"Fecola di patate, aroma di gambero",                            price:2.00,ps:"€ 2,00"},
+    {n:"6",  name:"Chips Sake",                     desc:"Chips, tartare salmone, avocado, salsa teriyaki, salsa limone", price:4.00,ps:"€ 4,00",qty:"2pz"},
+    {n:"6A", name:"Polpette Fritte",                desc:"Patate, salmone, salsa teriyaki",                               price:4.00,ps:"€ 4,00",qty:"4pz",f:1},
+    {n:"7",  name:"Ravioli con Verdure al Vapore",  desc:"Farina, cappuccio, carota, funghi neri",                        price:3.00,ps:"€ 3,00",qty:"4pz",f:1},
+    {n:"8",  name:"Ravioli con Carne al Vapore",    desc:"Farina, cappuccio, cipolla, carne di maiale",                   price:3.00,ps:"€ 3,00",qty:"4pz",f:1},
+    {n:"9",  name:"Ravioli con Carne alla Griglia", desc:"Farina, cappuccio, cipolla, carne di maiale",                   price:3.50,ps:"€ 3,50",qty:"4pz",f:1},
+    {n:"10", name:"Shaomai",                        desc:"Farina, gamberi, cipolla, carne di maiale",                     price:3.50,ps:"€ 3,50",qty:"4pz",f:1},
+    {n:"11", name:"Sake Bao",                       desc:"Salmone, mayo piccante, teriyaki, sesame, pane al vapore",      price:4.00,ps:"€ 4,00",qty:"1pz",f:1},
+    {n:"11A",name:"Ebi Bao",                        desc:"Gambero fritto, teriyaki, insalata",                            price:4.00,ps:"€ 4,00",qty:"1pz",f:1},
+    {n:"12", name:"Insalata con Pollo",             desc:"Salsa speciale",                                                price:3.00,ps:"€ 3,00",f:1},
+    {n:"13", name:"Insalata con Gamberi",           desc:"Salsa speciale",                                                price:3.00,ps:"€ 3,00",f:1},
+    {n:"14", name:"Insalata con Polipo",            desc:"Salsa speciale",                                                price:3.50,ps:"€ 3,50"},
+    {n:"15", name:"Alghe Wakame",                   desc:"",                                                              price:3.00,ps:"€ 3,00",f:1},
+    {n:"15A",name:"Edamame",                        desc:"Fagioli di soia",                                               price:3.00,ps:"€ 3,00",f:1},
+    {n:"16", name:"Zuppa Agropiccante",             desc:"Zucchine, bambu, tofu, carote, uova, fecola di patate, sale",  price:3.00,ps:"€ 3,00"},
+    {n:"17", name:"Zuppa di Miso",                  desc:"Tofu, alghe",                                                   price:3.00,ps:"€ 3,00"},
+  ]},
+  {id:"box",label:"Menu Box",icon:"📦",special:"box",items:[]},
+  {id:"poke",label:"Poke Bowl",icon:"🥗",special:"poke",items:[]},
+  {id:"riso-pasta",label:"Riso e Pasta",icon:"🍜",items:[
+    {n:"18", name:"Ramen",                                   desc:"Verdura mista e manzo con pepe misto",                          price:4.50,ps:"€ 4,50",f:1},
+    {n:"18A",name:"Udon",                                    desc:"Verdura mista, uova, carne",                                    price:4.50,ps:"€ 4,50"},
+    {n:"19", name:"Riso alla Cantonese",                     desc:"Uova, piselli, prosciutto cotto",                               price:4.00,ps:"€ 4,00"},
+    {n:"20", name:"Riso con Gamberi",                        desc:"Uova, piselli, gamberi",                                        price:4.00,ps:"€ 4,00",f:1},
+    {n:"21", name:"Riso Croccante alla Piastra",             desc:"Pollo, gamberi, verdura mista",                                 price:4.50,ps:"€ 4,50",f:1},
+    {n:"22", name:"Riso con Verdure Miste",                  desc:"Uova, verdura mista",                                           price:4.00,ps:"€ 4,00"},
+    {n:"22A",name:"Gnocchi di Riso",                         desc:"Verdure miste",                                                 price:4.00,ps:"€ 4,00"},
+    {n:"23", name:"Cappellini Carne e Verdura alla Piastra", desc:"Verdura mista, carote, uova, carne di maiale",                  price:4.50,ps:"€ 4,50",f:1},
+    {n:"24", name:"Cappellini Frutti di Mare e Verdure",     desc:"Calamari, gamberi, polpa di granchio, verdura, uova",           price:4.50,ps:"€ 4,50",f:1},
+    {n:"25", name:"Cappellini Verdure Miste alla Piastra",   desc:"Verdure, uova",                                                 price:4.00,ps:"€ 4,00"},
+    {n:"26", name:"Spaghetti di Soia con Carne",             desc:"Carne di maiale, verdure",                                      price:4.00,ps:"€ 4,00",f:1},
+    {n:"27", name:"Spaghetti di Soia con Frutti di Mare",    desc:"Calamari, gamberi, polpa di granchio, verdura",                 price:4.50,ps:"€ 4,50",f:1},
+    {n:"28", name:"Spaghetti di Soia con Verdura Mista",     desc:"Verdura mista",                                                 price:4.00,ps:"€ 4,00"},
+    {n:"29", name:"Spaghetti di Riso con Carne",             desc:"Carne di maiale, verdure, uova",                                price:4.50,ps:"€ 4,50",f:1},
+    {n:"30", name:"Spaghetti di Riso con Frutti di Mare",    desc:"Calamari, gamberi, polpa di granchio, verdure, uova",           price:4.50,ps:"€ 4,50",f:1},
+    {n:"31", name:"Spaghetti di Riso con Verdura",           desc:"Verdura mista, uova",                                           price:4.00,ps:"€ 4,00"},
+    {n:"180",name:"Karaage Ramen Tonkotsu",                  desc:"Tempura di pollo, alghe, cippolline, uova",                     price:9.00,ps:"€ 9,00"},
+    {n:"181",name:"Gyuniku Ramen Tonkotsu",                  desc:"Manzo, alghe, cippolline, uova",                                price:9.00,ps:"€ 9,00"},
+  ]},
+  {id:"pollo",label:"Pollo",icon:"🍗",items:[
+    {n:"32",name:"Pollo in Salsa Piccante",        desc:"Peperoni, bambu, carote, cipolle, salsa piccante",  price:6.00,ps:"€ 6,00",f:1},
+    {n:"33",name:"Spiedini di Pollo Teriyaki",     desc:"",                                                   price:5.50,ps:"€ 5,50",f:1},
+    {n:"34",name:"Pollo Fritto",                   desc:"Pollo con pastella fritta",                          price:6.00,ps:"€ 6,00",f:1},
+    {n:"35",name:"Pollo con Funghi e Bambu",       desc:"",                                                   price:6.00,ps:"€ 6,00",f:1},
+    {n:"36",name:"Misto di Carne Pollo e Gamberi", desc:"Manzo, pollo, gamberi, verdure",                     price:6.00,ps:"€ 6,00",f:1},
+    {n:"37",name:"Pollo al Curry",                 desc:"Bambu, cipolla, salsa curry",                        price:6.00,ps:"€ 6,00",f:1},
+    {n:"38",name:"Pollo in Salsa Agrodolce",       desc:"Pomodoro, ananas, salsa agrodolce",                  price:6.00,ps:"€ 6,00",f:1},
+    {n:"39",name:"Pollo con Patate alla Piastra",  desc:"Cipolla, patate",                                    price:6.00,ps:"€ 6,00",f:1},
+    {n:"40",name:"Pollo con Mandorle",             desc:"Bambu, carote, mandorle",                            price:6.00,ps:"€ 6,00",f:1},
+    {n:"41",name:"Pollo in Salsa Limone",          desc:"Salsa limone",                                       price:6.00,ps:"€ 6,00",f:1},
+  ]},
+  {id:"maiale-anatra",label:"Maiale e Anatra",icon:"🦆",items:[
+    {n:"42",name:"Maiale Salsa Agrodolce",    desc:"Pomodoro, ananas, salsa agrodolce", price:6.00,ps:"€ 6,00",f:1},
+    {n:"43",name:"Anatra all'Arancia",        desc:"",                                  price:6.00,ps:"€ 6,00",f:1},
+    {n:"45",name:"Anatra Arrosto con Aromi",  desc:"",                                  price:6.00,ps:"€ 6,00",f:1},
+  ]},
+  {id:"manzo",label:"Manzo",icon:"🥩",items:[
+    {n:"46",name:"Manzo con Funghi e Bambu",      desc:"Funghi, bambu",                                           price:6.00,ps:"€ 6,00",f:1},
+    {n:"47",name:"Manzo al Curry",                desc:"Cipolla, bambu, salsa curry",                             price:6.00,ps:"€ 6,00",f:1},
+    {n:"48",name:"Manzo in Salsa Piccante",       desc:"Peperoni, cipolla, bambu, carote, salsa piccante",        price:6.00,ps:"€ 6,00",f:1},
+    {n:"49",name:"Manzo con Patate alla Piastra", desc:"Cipolla, patate",                                         price:6.50,ps:"€ 6,50",f:1},
+  ]},
+  {id:"pesce",label:"Pesce e Crostacei",icon:"🦐",note:"Limite gamberi con menu PRANZO AYCE",items:[
+    {n:"50",name:"Tempura Gamberi Fritti",         desc:"",                                                        price:6.50,ps:"€ 6,50",f:1},
+    {n:"51",name:"Spiedini di Gamberi Teriyaki",   desc:"",                                                        price:6.50,ps:"€ 6,50",f:1},
+    {n:"52",name:"Gamberi in Salsa Piccante",      desc:"Succo di pomodoro, peperoni, cipolla, salsa piccante",    price:6.50,ps:"€ 6,50",f:1},
+    {n:"53",name:"Gamberi al Curry",               desc:"Cipolla, bambu, salsa curry",                             price:6.50,ps:"€ 6,50",f:1},
+    {n:"54",name:"Gamberi in Salsa Agrodolce",     desc:"Pomodoro, ananas, salsa agrodolce",                       price:6.50,ps:"€ 6,50",f:1},
+    {n:"55",name:"Gamberi con Funghi e Bambu",     desc:"Funghi, bambu",                                           price:6.50,ps:"€ 6,50",f:1},
+    {n:"57",name:"Gamberi alla Piastra",           desc:"Gamberi, funghi, bambu, peperoni, cipolla",               price:6.50,ps:"€ 6,50",f:1},
+    {n:"58",name:"Gamberi Sale e Pepe",            desc:"Zenzero",                                                  price:6.50,ps:"€ 6,50",f:1},
+    {n:"59",name:"Gamberoni alla Griglia",         desc:"",                                                        price:7.00,ps:"€ 7,00",f:1},
+    {n:"60",name:"Tempura Calamari Fritti",        desc:"",                                                        price:6.50,ps:"€ 6,50",f:1},
+  ]},
+  {id:"contorno",label:"Contorno",icon:"🥦",items:[
+    {n:"61",name:"Tofu con Carne in Salsa Piccante",desc:"Carne di maiale, peperoni, salsa piccante", price:5.00,ps:"€ 5,00"},
+    {n:"62",name:"Tofu con Funghi e Bambu",         desc:"",                                          price:5.00,ps:"€ 5,00"},
+    {n:"63",name:"Verdure Miste Fritte",            desc:"Carota, zucchine, cipolla, peperoni",       price:4.00,ps:"€ 4,00"},
+    {n:"64",name:"Verdure Miste Saltate",           desc:"Germogli di soia, carota, zucchine, sedano",price:4.00,ps:"€ 4,00"},
+  ]},
+  {id:"nighiri",label:"Nighiri",icon:"🍣",subtitle:"2pz",items:[
+    {n:"65",name:"Sake",                   desc:"Salmone",                         price:3.00,ps:"€ 3,00"},
+    {n:"66",name:"Tekka",                  desc:"Tonno pinna gialla",              price:3.00,ps:"€ 3,00"},
+    {n:"67",name:"Suzuki",                 desc:"Branzino",                        price:3.00,ps:"€ 3,00"},
+    {n:"68",name:"Ebi",                    desc:"Gamberi cotto",                   price:3.00,ps:"€ 3,00",f:1},
+    {n:"69",name:"Surimi",                 desc:"Polpa di granchio",               price:3.00,ps:"€ 3,00",f:1},
+    {n:"70",name:"Tako",                   desc:"Polipo",                          price:3.00,ps:"€ 3,00"},
+    {n:"71",name:"Nighiri Scottato Sake",  desc:"Salmone, salsa teriyaki, sesamo", price:4.00,ps:"€ 4,00"},
+    {n:"72",name:"Nighiri Scottato Tekka", desc:"Tonno, salsa teriyaki, sesamo",   price:4.00,ps:"€ 4,00"},
+    {n:"73",name:"Nighiri Scottato Suzuki",desc:"Branzino, salsa teriyaki, sesamo",price:4.00,ps:"€ 4,00"},
+    {n:"82",name:"Onigiri",                desc:"Tonno cotto, maionese teriyaki",  price:4.00,ps:"€ 4,00",qty:"1pz"},
+    {n:"83",name:"Onigiri 1",              desc:"Surimi fritti teriyaki",          price:4.00,ps:"€ 4,00",qty:"1pz",f:1},
+  ]},
+  {id:"gunkan",label:"Gunkan",icon:"🌊",subtitle:"2pz",items:[
+    {n:"74",name:"Gunkan Sake",         desc:"Salmone, maionese piccante",  price:4.00,ps:"€ 4,00"},
+    {n:"75",name:"Gunkan Tekka",        desc:"Tonno, maionese piccante",    price:4.00,ps:"€ 4,00"},
+    {n:"76",name:"Gunkan Tobiko",       desc:"Uova di pesce",               price:4.00,ps:"€ 4,00"},
+    {n:"77",name:"Gunkan Spicy Sake",   desc:"Salmone, maionese piccante",  price:5.00,ps:"€ 5,00"},
+    {n:"78",name:"Gunkan Philadelphia", desc:"Salmone, philadelphia",       price:5.00,ps:"€ 5,00"},
+    {n:"79",name:"Gunkan Zucchini",     desc:"Gamberi, surimi, maionese",   price:5.00,ps:"€ 5,00",f:1},
+    {n:"80",name:"Gunkan Bianco",       desc:"Sopra philadelphia, salmone", price:5.00,ps:"€ 5,00"},
+    {n:"81",name:"Gunkan Venere",       desc:"Sopra philadelphia, salmone", price:5.00,ps:"€ 5,00"},
+  ]},
+  {id:"temaki",label:"Temaki",icon:"🌮",subtitle:"1pz",items:[
+    {n:"84",name:"Temaki Sake",         desc:"Salmone, avocado",                   price:4.00,ps:"€ 4,00"},
+    {n:"85",name:"Temaki Maguro",       desc:"Tonno, avocado",                     price:4.00,ps:"€ 4,00"},
+    {n:"86",name:"Temaki Spicy Sake",   desc:"Salmone, maionese piccante",         price:4.00,ps:"€ 4,00"},
+    {n:"87",name:"Temaki Spicy Maguro", desc:"Tonno piccante",                     price:4.00,ps:"€ 4,00"},
+    {n:"88",name:"Temaki Surimi",       desc:"Surimi, philadelphia",               price:4.00,ps:"€ 4,00",f:1},
+    {n:"89",name:"Temaki Ebiten",       desc:"Gamberi fritti, maionese, teriyaki", price:4.00,ps:"€ 4,00",f:1},
+    {n:"90",name:"Temaki Philadelphia", desc:"Salmone, philadelphia",              price:4.00,ps:"€ 4,00"},
+  ]},
+  {id:"hossomaki",label:"Hossomaki",icon:"🌀",subtitle:"6pz",items:[
+    {n:"91",name:"Sake Maki",   desc:"Salmone",           price:4.00,ps:"€ 4,00"},
+    {n:"92",name:"Tekka Maki",  desc:"Tonno pinna gialla",price:5.00,ps:"€ 5,00"},
+    {n:"93",name:"Avocado Maki",desc:"Avocado",           price:4.00,ps:"€ 4,00"},
+    {n:"94",name:"Kappa Maki",  desc:"Cetrioli",          price:4.00,ps:"€ 4,00"},
+    {n:"95",name:"Ebi Maki",    desc:"Gamberi cotti",     price:5.00,ps:"€ 5,00",f:1},
+    {n:"96",name:"Surimi Maki", desc:"Polpa di granchio", price:5.00,ps:"€ 5,00",f:1},
+  ]},
+  {id:"hosso-fritto",label:"Hosso Fritto",icon:"🔥",subtitle:"8pz",items:[
+    {n:"97", name:"Ebiten Maki",           desc:"Gamberi fritti, salsa teriyaki",                         price:6.00,ps:"€ 6,00",f:1},
+    {n:"98", name:"Fly Maki",              desc:"Gamberi cotto, salsa teriyaki",                          price:6.00,ps:"€ 6,00",f:1},
+    {n:"99", name:"Supermaki Philadelphia",desc:"Salmone sopra philadelphia, salsa teriyaki",             price:8.00,ps:"€ 8,00"},
+    {n:"100",name:"Super Spicy",           desc:"Sopra salmone piccante",                                 price:8.00,ps:"€ 8,00"},
+    {n:"182",name:"Kataifi Roll",          desc:"Avocado, kataifi, teriyaki, salsa chicken",              price:8.00,ps:"€ 8,00"},
+    {n:"183",name:"Panko Roll",            desc:"Salmone, salsa teriyaki, salsa chicken, cipolla fritta", price:8.00,ps:"€ 8,00"},
+    {n:"101",name:"Futo Fritto",           desc:"Salmone, surimi, philadelphia, tobiko",                  price:8.00,ps:"€ 8,00",qty:"5pz",f:1},
+    {n:"102",name:"Futo California",       desc:"Salmone, surimi, avocado, maionese",                     price:8.00,ps:"€ 8,00",qty:"5pz",f:1},
+  ]},
+  {id:"uramaki",label:"Uramaki",icon:"🎯",subtitle:"8pz",items:[
+    {n:"103",name:"Ura Sake",               desc:"Salmone, avocado",                                                  price:8.00,ps:"€ 8,00"},
+    {n:"104",name:"Ura Philadelphia",       desc:"Salmone, philadelphia",                                             price:8.00,ps:"€ 8,00"},
+    {n:"105",name:"Ura Spicy Sake",         desc:"Salmone, salsa piccante",                                           price:10.00,ps:"€ 10,00"},
+    {n:"106",name:"Ura Maguro",             desc:"Tonno, avocado",                                                    price:10.00,ps:"€ 10,00"},
+    {n:"107",name:"Ura Spicy Tekka",        desc:"Tonno, salsa piccante",                                             price:10.00,ps:"€ 10,00"},
+    {n:"108",name:"Ura Kani",               desc:"Surimi, avocado, maionese, pistacchio",                             price:8.00,ps:"€ 8,00"},
+    {n:"109",name:"Ura Miura",              desc:"Salmone cotto, philadelphia, salsa teriyaki, pistacchio",           price:8.00,ps:"€ 8,00"},
+    {n:"110",name:"Ura Tuna",               desc:"Tonno cotto, philadelphia, salsa teriyaki, pistacchio",             price:8.00,ps:"€ 8,00"},
+    {n:"111",name:"Ura Ebiten",             desc:"Gamberi fritti, salsa teriyaki, maionese",                          price:8.00,ps:"€ 8,00"},
+    {n:"112",name:"Ura Vegetariano",        desc:"Insalata, cetrioli, avocado, maionese",                             price:8.00,ps:"€ 8,00"},
+    {n:"113",name:"Ura Vegetariano Fritto", desc:"Tempura di verdura, zucchini, carota, teriyaki",                    price:8.00,ps:"€ 8,00"},
+    {n:"114",name:"Ura Mango",              desc:"Salmone, philadelphia, mango",                                      price:10.00,ps:"€ 10,00"},
+    {n:"115",name:"Ura Fresco",             desc:"Polpa di granchio fritto, philadelphia, pomodoro, salsa teriyaki",  price:10.00,ps:"€ 10,00"},
+    {n:"116",name:"Ura Chicken",            desc:"Pollo fritto, philadelphia, sopra fragola o patatine",              price:10.00,ps:"€ 10,00"},
+    {n:"117",name:"Ura Alghe",              desc:"Tempura gamberi, maionese, alghe",                                  price:10.00,ps:"€ 10,00"},
+    {n:"118",name:"Ura Tiger Roll",         desc:"Tempura gamberi, maionese, salmone",                                price:10.00,ps:"€ 10,00"},
+    {n:"119",name:"Ura Dragon Roll",        desc:"Tempura gamberi, philadelphia, sopra avocado, salsa teriyaki",      price:10.00,ps:"€ 10,00"},
+    {n:"120",name:"Ura Tiger Roll Scottato",desc:"Tempura gamberi, philadelphia, sopra salmone scottato, teriyaki",   price:10.00,ps:"€ 10,00"},
+    {n:"121",name:"Ura Sake Roll",          desc:"Salmone fritto, philadelphia, sopra salmone scottato, teriyaki",    price:10.00,ps:"€ 10,00"},
+    {n:"122",name:"Venere Sake Cotto",      desc:"Riso venere, salmone cotto, philadelphia, teriyaki, mandorle",      price:8.00,ps:"€ 8,00"},
+    {n:"124",name:"Venere Sake",            desc:"Riso venere, salmone, avocado, philadelphia, mandorle",             price:8.00,ps:"€ 8,00"},
+    {n:"125",name:"Venere Tonno",           desc:"Riso venere, tonno pinna gialla cotto, avocado, teriyaki, mandorle",price:8.00,ps:"€ 8,00"},
+    {n:"126",name:"Venere Cipolla",         desc:"Riso venere, tempura gamberi, philadelphia",                        price:8.00,ps:"€ 8,00"},
+    {n:"153",name:"Rainbow Roll",           desc:"Salmone, avocado, sopra salmone, tonno, branzino, gamberi",         price:10.00,ps:"€ 10,00"},
+  ]},
+  {id:"sushi-misto",label:"Sushi Misto",icon:"🎌",items:[
+    {n:"127",name:"Gunkan Mix",desc:"Gunkan misto",                                 price:6.00,ps:"€ 6,00",qty:"5pz",f:1},
+    {n:"128",name:"Sushi Mix", desc:"6pz nighiri misto, 6pz hossomaki salmone",     price:12.00,ps:"€ 12,00",qty:"12pz",f:1},
+  ]},
+  {id:"tartare",label:"Cirashi / Sashimi / Tartare",icon:"🐟",note:"Limite Sashimi e Tartare con menu PRANZO AYCE",items:[
+    {n:"129",name:"Cirashi Sake",      desc:"Riso di sushi con salmone",          price:8.00,ps:"€ 8,00"},
+    {n:"130",name:"Cirashi Mix",       desc:"Riso di sushi con pesce misto",      price:8.00,ps:"€ 8,00"},
+    {n:"131",name:"Sashimi Sake",      desc:"",                                   price:10.00,ps:"€ 10,00"},
+    {n:"132",name:"Sashimi Mix",       desc:"",                                   price:10.00,ps:"€ 10,00"},
+    {n:"133",name:"Carpaccio Sake",    desc:"Fettine di salmone, salsa ponzu",    price:10.00,ps:"€ 10,00"},
+    {n:"134",name:"Carpaccio Mix",     desc:"Fettine di pesce misto, salsa ponzu",price:10.00,ps:"€ 10,00"},
+    {n:"135",name:"Tartar Sake",       desc:"Salmone ritato, salsa ponzu",        price:10.00,ps:"€ 10,00"},
+    {n:"136",name:"Tartar Maguro",     desc:"Tonno ritato, salsa ponzu",          price:10.00,ps:"€ 10,00"},
+    {n:"137",name:"Barca x2",          desc:"30pz di sushi misto",               price:30.00,ps:"€ 30,00",f:1},
+    {n:"138",name:"Barca x4",          desc:"60pz di sushi misto",               price:60.00,ps:"€ 60,00",f:1},
+    {n:"147",name:"Poke",              desc:"Salmone, avocado",                  price:8.00,ps:"€ 8,00"},
+    {n:"148",name:"Tartare Mix",       desc:"Salmone, tonno, branzino, mango, avocado",price:10.00,ps:"€ 10,00"},
+    {n:"149",name:"Salmone Tataki",    desc:"Salmone, sesamo alla griglia",      price:10.00,ps:"€ 10,00"},
+    {n:"150",name:"Sake Teppanyaki",   desc:"Salmone alla griglia",              price:10.00,ps:"€ 10,00"},
+    {n:"151",name:"Yaki Zakana",       desc:"Salmone, tonno, branzino alla griglia, salsa teriyaki",price:10.00,ps:"€ 10,00"},
+    {n:"152",name:"Futo Bronus Fritto",desc:"Salmone affumicato, insalata",      price:8.00,ps:"€ 8,00"},
+    {n:"184",name:"Sake Crispy Rice",  desc:"Riso fritto, tartare salmone, avocado, teriyaki, salsa limone",   price:4.00,ps:"€ 4,00",qty:"2pz"},
+    {n:"185",name:"Maguro Crispy Rice",desc:"Riso fritto, tartare tonno, avocado, teriyaki, salsa affumicato", price:4.00,ps:"€ 4,00",qty:"2pz"},
+    {n:"186",name:"Cheese Roll",       desc:"Cheddar, pistacchio, teriyaki, tempura di gamberi",               price:10.00,ps:"€ 10,00",qty:"8pz"},
+  ]},
+  {id:"cena",label:"Menu Cena",icon:"🌙",note:"Disponibile solo con Menu Cena",items:[
+    {n:"140", name:"Nighiri Scottato Sake",   desc:"Salsa speciale pistacchio",                                          price:5.00,ps:"€ 5,00"},
+    {n:"141", name:"Nighiri Scottato Tekka",  desc:"Salsa speciale pistacchio",                                          price:5.00,ps:"€ 5,00"},
+    {n:"142", name:"Nighiri Scottato Suzuki", desc:"Salsa speciale pistacchio",                                          price:5.00,ps:"€ 5,00"},
+    {n:"143", name:"Nighiri Anguilla",        desc:"Anguilla",                                                           price:5.00,ps:"€ 5,00"},
+    {n:"144", name:"Gunkan Scottato Sake",    desc:"Salmone, philadelphia, kataifi, teriyaki",                           price:5.00,ps:"€ 5,00"},
+    {n:"145", name:"Gunkan Hana",             desc:"Tempura gamberi, cetrioli, salmone scottato, teriyaki, philadelphia",price:5.00,ps:"€ 5,00"},
+    {n:"146", name:"Cono Sake",               desc:"Salmone, maionese piccante, salsa teriyaki",                        price:6.00,ps:"€ 6,00"},
+    {n:"154", name:"Ura Anguilla",            desc:"Anguilla sopra branzino scottato, salsa speciale, pistacchio",      price:10.00,ps:"€ 10,00"},
+    {n:"155", name:"Ura Speciale",            desc:"Gamberi fritti, insalata, philadelphia, sopra sottiletta, teriyaki",price:10.00,ps:"€ 10,00"},
+    {n:"187", name:"Lemon Roll",              desc:"Tempura di gamberi, crunch, salsa limone",                           price:10.00,ps:"€ 10,00",qty:"8pz"},
+    {n:"188", name:"Flambe Roll",             desc:"Salmone cotto, philadelphia, salsa miso, teriyaki, crunch",         price:10.00,ps:"€ 10,00",qty:"8pz"},
+    {n:"189", name:"Sake Smoke Roll",         desc:"Salmone affumicato, avocado, philadelphia, salsa affumicato",       price:11.00,ps:"€ 11,00",qty:"8pz"},
+    {n:"190", name:"Maguro Smoke Roll",       desc:"Tonno, riso venere, tempura gamberi, avocado, salsa affumicato",    price:10.00,ps:"€ 10,00",qty:"8pz"},
+    {n:"191", name:"Carpaccio Tris",          desc:"Misto pesce, salsa passione",                                       price:10.00,ps:"€ 10,00"},
+    {n:"192", name:"Tartare Tris",            desc:"Misto pesce, avocado, mango, salsa passione",                       price:10.00,ps:"€ 10,00"},
+    {n:"193", name:"Tacos Sake",              desc:"Salmone, avocado, teriyaki, salsa limone",                          price:4.00,ps:"€ 4,00",qty:"1pz"},
+    {n:"193A",name:"Tacos Maguro",            desc:"Tonno, avocado, salsa affumicato, teriyaki",                        price:4.00,ps:"€ 4,00",qty:"1pz"},
+    {n:"194", name:"Tacos Pollo",             desc:"Pollo, insalata, patate, teriyaki, salsa chicken",                  price:4.00,ps:"€ 4,00",qty:"1pz"},
+    {n:"194A",name:"Tacos Ebi",               desc:"Gamberi, insalata, patate, teriyaki, salsa chicken",               price:4.00,ps:"€ 4,00",qty:"1pz"},
+    {n:"195", name:"Gold Roll",               desc:"Riso venere, salmone, avocado, mandorle, teriyaki, glitter oro",   price:12.00,ps:"€ 12,00"},
+    {n:"196", name:"Tartufo Roll",            desc:"Tempura gamberi, tonno scottato, tartufo, teriyaki",               price:12.00,ps:"€ 12,00",qty:"8pz"},
+    {n:"197", name:"Gunkan Flambe",           desc:"Salmone scottato, pistacchio, teriyaki",                           price:5.00,ps:"€ 5,00",qty:"2pz"},
+  ]},
+  {id:"dolci",label:"Dolci",icon:"🍡",items:[
+    {n:"160",name:"Gelato Fritto",       desc:"Vaniglia, cioccolato",                        price:4.00,ps:"€ 4,00"},
+    {n:"161",name:"Nutella Fritta",      desc:"",                                            price:4.00,ps:"€ 4,00"},
+    {n:"162",name:"Dolce Cinese",        desc:"Pane al vapore",                              price:4.00,ps:"€ 4,00"},
+    {n:"163",name:"Macedonia Cinese",    desc:"Occhi di drago, nespole, more cinesi, licis", price:4.00,ps:"€ 4,00"},
+    {n:"164",name:"Mochi Cocco",         desc:"Gelato, panna",                               price:4.00,ps:"€ 4,00"},
+    {n:"165",name:"Mochi Mango",         desc:"Gelato, mango",                               price:4.00,ps:"€ 4,00"},
+    {n:"166",name:"Mochi Cioccolato",    desc:"",                                            price:4.00,ps:"€ 4,00"},
+    {n:"167",name:"Dorayaki",            desc:"",                                            price:4.00,ps:"€ 4,00"},
+    {n:"168",name:"Tiramisu",            desc:"",                                            price:4.50,ps:"€ 4,50"},
+    {n:"169",name:"Tartufo Bianco",      desc:"",                                            price:4.50,ps:"€ 4,50"},
+    {n:"170",name:"Tartufo Nero",        desc:"",                                            price:4.50,ps:"€ 4,50"},
+    {n:"171",name:"Gelato al Cocco",     desc:"",                                            price:4.50,ps:"€ 4,50"},
+    {n:"172",name:"Gelato Limone",       desc:"",                                            price:4.50,ps:"€ 4,50"},
+    {n:"173",name:"Mousse Cioccolato",   desc:"",                                            price:4.00,ps:"€ 4,00"},
+    {n:"174",name:"Mousse Frutta Bosco", desc:"",                                            price:4.00,ps:"€ 4,00"},
+    {n:"198",name:"Pane Cinese Dolce",   desc:"Latte condensato",                            price:3.00,ps:"€ 3,00",qty:"2pz"},
+  ]},
+
+  {id:"bevande",label:"Bevande",icon:"🍺",items:[
+    {n:"—",name:"Acqua Ferrarelle",           desc:"1 litro",  price:2.50,ps:"€ 2,50"},
+    {n:"—",name:"Acqua Naturale",             desc:"1 litro",  price:2.50,ps:"€ 2,50"},
+    {n:"—",name:"Coca Cola / Fanta",          desc:"1 litro",  price:4.50,ps:"€ 4,50"},
+    {n:"—",name:"Coca Cola / Fanta / Sprite", desc:"Lattina",  price:2.50,ps:"€ 2,50"},
+    {n:"—",name:"The Limone / Pesca",         desc:"Lattina",  price:2.50,ps:"€ 2,50"},
+    {n:"—",name:"Coca Cola Zero",             desc:"Lattina",  price:2.50,ps:"€ 2,50"},
+    {n:"—",name:"Birra Giapponese Asahi",     desc:"cl 50",    price:4.50,ps:"€ 4,50"},
+    {n:"—",name:"Birra Cinese",               desc:"cl 66",    price:4.00,ps:"€ 4,00"},
+    {n:"—",name:"Birra Raffo",                desc:"cl 33",    price:2.50,ps:"€ 2,50"},
+    {n:"—",name:"Birra Raffo",                desc:"cl 66",    price:4.00,ps:"€ 4,00"},
+    {n:"—",name:"Birra Heineken",             desc:"cl 33",    price:2.50,ps:"€ 2,50"},
+    {n:"—",name:"Birra Heineken",             desc:"cl 66",    price:4.00,ps:"€ 4,00"},
+    {n:"—",name:"Aperol Spritz",              desc:"Bicchiere",price:4.00,ps:"€ 4,00"},
+  ]},
+  {id:"vini",label:"Vini",icon:"🍷",items:[
+    {n:"—",name:"Donna Marzia Bianco",          desc:"cl 75",     price:10.00,ps:"€ 10,00"},
+    {n:"—",name:"Chardonnay Salento",           desc:"cl 75",     price:14.00,ps:"€ 14,00"},
+    {n:"—",name:"Spumante Extra Dry Rose",      desc:"cl 75",     price:14.00,ps:"€ 14,00"},
+    {n:"—",name:"Chardonnay Frizzante",         desc:"cl 75",     price:12.00,ps:"€ 12,00"},
+    {n:"—",name:"Spumante Extra Dry",           desc:"cl 75",     price:14.00,ps:"€ 14,00"},
+    {n:"—",name:"Donna Marzia Rosato",          desc:"cl 75",     price:10.00,ps:"€ 10,00"},
+    {n:"—",name:"Lancers Rosato",               desc:"cl 75",     price:14.00,ps:"€ 14,00"},
+    {n:"—",name:"Negroamaro Rosato",            desc:"cl 75",     price:14.00,ps:"€ 14,00"},
+    {n:"—",name:"Tramari Rose",                 desc:"cl 75",     price:14.00,ps:"€ 14,00"},
+    {n:"—",name:"Donna Marzia Rosso",           desc:"cl 75",     price:10.00,ps:"€ 10,00"},
+    {n:"—",name:"Primitivo Salento",            desc:"cl 75",     price:12.00,ps:"€ 12,00"},
+    {n:"—",name:"Vino della Casa Bianco/Rosso", desc:"1/2 litro", price:4.50,ps:"€ 4,50"},
+    {n:"—",name:"Vino della Casa Bianco/Rosso", desc:"1/4 litro", price:2.50,ps:"€ 2,50"},
+  ]},
+  {id:"liquori",label:"Liquori & Amaro",icon:"🥃",items:[
+    {n:"—",name:"Liquore di Ginseng",      desc:"",price:3.00,ps:"€ 3,00"},
+    {n:"—",name:"Liquore di Rose",         desc:"",price:3.00,ps:"€ 3,00"},
+    {n:"—",name:"Liquore di Riso",         desc:"",price:3.00,ps:"€ 3,00"},
+    {n:"—",name:"Liquore di Bambu",        desc:"",price:3.00,ps:"€ 3,00"},
+    {n:"—",name:"Liquore di Fejiu",        desc:"",price:3.00,ps:"€ 3,00"},
+    {n:"—",name:"Liquore di Prugna",       desc:"",price:3.00,ps:"€ 3,00"},
+    {n:"—",name:"Sake",                    desc:"",price:3.00,ps:"€ 3,00"},
+    {n:"—",name:"Fernet",                  desc:"",price:3.00,ps:"€ 3,00"},
+    {n:"—",name:"Barricata Dici Otto Lune",desc:"",price:3.50,ps:"€ 3,50"},
+    {n:"—",name:"Whiskream",               desc:"",price:3.00,ps:"€ 3,00"},
+    {n:"—",name:"Del Capo",                desc:"",price:3.00,ps:"€ 3,00"},
+    {n:"—",name:"Montenegro",              desc:"",price:3.00,ps:"€ 3,00"},
+    {n:"—",name:"Averna",                  desc:"",price:3.00,ps:"€ 3,00"},
+    {n:"—",name:"Lucano",                  desc:"",price:3.00,ps:"€ 3,00"},
+    {n:"—",name:"Jagermeister",            desc:"",price:3.00,ps:"€ 3,00"},
+    {n:"—",name:"Unicom",                  desc:"",price:3.00,ps:"€ 3,00"},
+    {n:"—",name:"Limoncello",              desc:"",price:3.00,ps:"€ 3,00"},
+    {n:"—",name:"S.Marzano Bosci",         desc:"",price:3.00,ps:"€ 3,00"},
+    {n:"—",name:"Glengrant",               desc:"",price:3.00,ps:"€ 3,00"},
+  ]},
+];
+  for(const cat of SEED_MENU){
+    if(cat.special) continue; // skip box/poke
+    for(const it of cat.items){
+      const docId = cat.id+"_"+String(it.n).replace(/[^a-z0-9]/gi,"_");
+      batch.set(doc(db,"menu",docId), {
+        n: it.n, name: it.name, desc: it.desc||"",
+        price: it.price, ps: it.ps, qty: it.qty||"",
+        f: it.f||0, catId: cat.id, sospeso: false
+      });
+    }
+  }
+  await batch.commit();
+  setSyncBadge("● live", false);
+}
+
+// Run seed check on login
+const origDoLogin = doLogin;
+// override to also seed
+document.getElementById("login-btn").removeEventListener("click", tryLogin);
+document.getElementById("login-btn").addEventListener("click", async () => {
+  const val = document.getElementById("pin-input").value;
+  if(val === PIN){
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("main").style.display = "flex";
+    buildCatTabs();
+    await seedIfEmpty();
+    startSync();
+  } else {
+    document.getElementById("pin-err").textContent = "Password errata";
+    document.getElementById("pin-input").value = "";
+  }
+});
+document.getElementById("pin-input").addEventListener("keydown", e => {
+  if(e.key==="Enter") document.getElementById("login-btn").click();
+});
+</script>
+</body>
+</html>
