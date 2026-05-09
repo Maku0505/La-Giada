@@ -389,6 +389,8 @@ var menu = [
     {n:"16", name:"Zuppa Agropiccante",             desc:"Zucchine, bambu, tofu, carote, uova, fecola di patate, sale",  price:3.00,ps:"€ 3,00"},
     {n:"17", name:"Zuppa di Miso",                  desc:"Tofu, alghe",                                                   price:3.00,ps:"€ 3,00"},
   ]},
+  {id:"box",label:"Menu Box",icon:"📦",special:"box",items:[]},
+  {id:"poke",label:"Poke Bowl",icon:"🥗",special:"poke",items:[]},
   {id:"riso-pasta",label:"Riso e Pasta",icon:"🍜",items:[
     {n:"18", name:"Ramen",                                   desc:"Verdura mista e manzo con pepe misto",                          price:4.50,ps:"€ 4,50",f:1},
     {n:"18A",name:"Udon",                                    desc:"Verdura mista, uova, carne",                                    price:4.50,ps:"€ 4,50"},
@@ -594,8 +596,6 @@ var menu = [
     {n:"198",name:"Pane Cinese Dolce",   desc:"Latte condensato",                            price:3.00,ps:"€ 3,00",qty:"2pz"},
   ]},
 
-  {id:"box",label:"Menu Box",icon:"📦",special:"box",items:[]},
-  {id:"poke",label:"Poke Bowl",icon:"🥗",special:"poke",items:[]},
   {id:"bevande",label:"Bevande",icon:"🍺",items:[
     {n:"—",name:"Acqua Ferrarelle",           desc:"1 litro",  price:2.50,ps:"€ 2,50"},
     {n:"—",name:"Acqua Naturale",             desc:"1 litro",  price:2.50,ps:"€ 2,50"},
@@ -777,16 +777,23 @@ function pokeUpdateUI(){
 }
 
 function pokeToggle(group,name){
-  var arr=pokeSelected[group];
-  var idx=arr.indexOf(name);
-  if(group==="base"){pokeSelected.base=name;}
-  else if(idx>=0){arr.splice(idx,1);}
-  else{arr.push(name);}
+  if(group==="base"){
+    pokeSelected.base=name;
+  } else {
+    var arr=pokeSelected[group];
+    var idx=arr.indexOf(name);
+    if(idx>=0){ arr.splice(idx,1); }
+    else { arr.push(name); }
+  }
   // Re-render options
   document.querySelectorAll(".poke-opt[data-group='"+group+"']").forEach(function(btn){
     var n=btn.dataset.name;
-    if(group==="base") btn.className="poke-opt"+(pokeSelected.base===n?" sel":"");
-    else btn.className="poke-opt"+(arr.indexOf(n)>=0?" extra-sel":"");
+    if(group==="base"){
+      btn.className="poke-opt"+(pokeSelected.base===n?" sel":"");
+    } else {
+      var arr2=pokeSelected[group];
+      btn.className="poke-opt"+(arr2.indexOf(n)>=0?" extra-sel":"");
+    }
   });
   pokeUpdateUI();
 }
