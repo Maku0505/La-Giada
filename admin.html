@@ -74,6 +74,7 @@ body{background:#0a0908;color:#e8e0d0;font-family:Georgia,serif;min-height:100vh
 /* TOAST */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#c9a96e;color:#0f0e0c;padding:10px 22px;border-radius:24px;font-size:13px;font-weight:700;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.show{opacity:1}
+.seed-btn{padding:7px 12px;background:none;border:1px solid #3a2a10;color:#c9a96e;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit}
 </style>
 </head>
 <body>
@@ -92,6 +93,7 @@ body{background:#0a0908;color:#e8e0d0;font-family:Georgia,serif;min-height:100vh
   <div class="top-bar">
     <h1>📋 Gestione Menù <span class="sync-badge" id="sync-badge"></span></h1>
     <div class="top-bar-right">
+      <button class="seed-btn" id="seed-btn" title="Ricarica piatti di default">⬇️ Carica piatti</button>
       <button class="add-btn" id="add-btn">+ Nuovo piatto</button>
       <button class="logout-btn" id="logout-btn">Esci</button>
     </div>
@@ -197,27 +199,9 @@ let unsub    = null;
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
 const PIN = "8888";
-document.getElementById("login-btn").addEventListener("click", tryLogin);
-document.getElementById("pin-input").addEventListener("keydown", e => { if(e.key==="Enter") tryLogin(); });
-document.getElementById("pin-input").addEventListener("input", e => {
+document.getElementById("pin-input").addEventListener("input", () => {
   document.getElementById("pin-err").textContent = "";
 });
-
-function tryLogin(){
-  const val = document.getElementById("pin-input").value;
-  if(val === PIN){ doLogin(); }
-  else {
-    document.getElementById("pin-err").textContent = "Password errata";
-    document.getElementById("pin-input").value = "";
-  }
-}
-
-function doLogin(){
-  document.getElementById("login-screen").style.display = "none";
-  document.getElementById("main").style.display = "flex";
-  buildCatTabs();
-  startSync();
-}
 
 document.getElementById("logout-btn").addEventListener("click", () => {
   if(unsub) unsub();
@@ -327,6 +311,11 @@ function populateCatSelect(){
 }
 
 document.getElementById("add-btn").addEventListener("click", () => openModal(null));
+document.getElementById("seed-btn").addEventListener("click", async () => {
+  if(!confirm("Caricare tutti i piatti di default su Firebase? I piatti esistenti NON verranno sovrascritti.")) return;
+  setSyncBadge("⏳ caricamento...", false);
+  await seedIfEmpty(true); // force=true
+});
 document.getElementById("modal-cancel").addEventListener("click", closeModal);
 document.getElementById("modal-overlay").addEventListener("click", e => {
   if(e.target === document.getElementById("modal-overlay")) closeModal();
@@ -395,9 +384,9 @@ function showToast(msg){
 }
 
 // ── INIT: seed Firebase with default menu if empty ────────────────────────────
-async function seedIfEmpty(){
+async function seedIfEmpty(force){
   const snap = await getDocs(collection(db,"menu"));
-  if(!snap.empty) return; // already seeded
+  if(!snap.empty && !force) return; // already seeded
   setSyncBadge("⏳ caricamento dati...", false);
   const batch = writeBatch(db);
   const SEED_MENU = [
@@ -684,26 +673,35 @@ async function seedIfEmpty(){
     {n:"—",name:"Glengrant",               desc:"",price:3.00,ps:"€ 3,00"},
   ]},
 ];
+  let count = 0;
+  let batches = [writeBatch(db)];
+  let batchCount = 0;
   for(const cat of SEED_MENU){
-    if(cat.special) continue; // skip box/poke
+    if(cat.special) continue;
     for(const it of cat.items){
+      if(batchCount >= 400){ batches.push(writeBatch(db)); batchCount=0; }
+      const b = batches[batches.length-1];
       const docId = cat.id+"_"+String(it.n).replace(/[^a-z0-9]/gi,"_");
-      batch.set(doc(db,"menu",docId), {
+      b.set(doc(db,"menu",docId), {
         n: it.n, name: it.name, desc: it.desc||"",
-        price: it.price, ps: it.ps, qty: it.qty||"",
-        f: it.f||0, catId: cat.id, sospeso: false
+        price: it.price, ps: it.ps||("€ "+Number(it.price).toFixed(2).replace(".",",")),
+        qty: it.qty||"", f: it.f||0, catId: cat.id, sospeso: false
       });
+      batchCount++; count++;
     }
   }
-  await batch.commit();
+  for(const b of batches) await b.commit();
   setSyncBadge("● live", false);
+  showToast("✅ "+count+" piatti caricati!");
 }
 
-// Run seed check on login
-const origDoLogin = doLogin;
-// override to also seed
-document.getElementById("login-btn").removeEventListener("click", tryLogin);
-document.getElementById("login-btn").addEventListener("click", async () => {
+// Attach login listeners once
+document.getElementById("login-btn").addEventListener("click", handleLogin);
+document.getElementById("pin-input").addEventListener("keydown", e => {
+  if(e.key==="Enter") handleLogin();
+});
+
+async function handleLogin(){
   const val = document.getElementById("pin-input").value;
   if(val === PIN){
     document.getElementById("login-screen").style.display = "none";
@@ -714,11 +712,9 @@ document.getElementById("login-btn").addEventListener("click", async () => {
   } else {
     document.getElementById("pin-err").textContent = "Password errata";
     document.getElementById("pin-input").value = "";
+    setTimeout(()=>document.getElementById("pin-err").textContent="",1500);
   }
-});
-document.getElementById("pin-input").addEventListener("keydown", e => {
-  if(e.key==="Enter") document.getElementById("login-btn").click();
-});
+}
 </script>
 </body>
 </html>
