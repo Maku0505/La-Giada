@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>La Giada — Gestione Menù</title>
+<title>La Giada — 菜单管理</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0a0908;color:#e8e0d0;font-family:Georgia,serif;min-height:100vh}
@@ -82,68 +82,68 @@ body{background:#0a0908;color:#e8e0d0;font-family:Georgia,serif;min-height:100vh
 <!-- LOGIN -->
 <div id="login-screen">
   <h1>La Giada</h1>
-  <p>Gestione Menù</p>
+  <p>菜单管理</p>
   <input id="pin-input" type="password" maxlength="10" placeholder="••••">
   <div id="pin-err"></div>
-  <button class="login-btn" id="login-btn">Accedi</button>
+  <button class="login-btn" id="login-btn">登录</button>
 </div>
 
 <!-- MAIN PANEL -->
 <div id="main">
   <div class="top-bar">
-    <h1>📋 Gestione Menù <span class="sync-badge" id="sync-badge"></span></h1>
+    <h1>📋 菜单管理 <span class="sync-badge" id="sync-badge"></span></h1>
     <div class="top-bar-right">
-      <button class="seed-btn" id="seed-btn" title="Ricarica piatti di default">⬇️ Carica piatti</button>
-      <button class="add-btn" id="add-btn">+ Nuovo piatto</button>
-      <button class="logout-btn" id="logout-btn">Esci</button>
+      <button class="seed-btn" id="seed-btn" title="加载默认菜品">⬇️ 加载菜品</button>
+      <button class="add-btn" id="add-btn">+ 新增菜品</button>
+      <button class="logout-btn" id="logout-btn">退出</button>
     </div>
   </div>
   <div class="cat-tabs" id="cat-tabs"></div>
-  <div class="items-wrap" id="items-wrap"><div class="empty-msg">Caricamento...</div></div>
+  <div class="items-wrap" id="items-wrap"><div class="empty-msg">加载中...</div></div>
 </div>
 
 <!-- MODAL -->
 <div id="modal-overlay">
   <div id="modal">
-    <div class="modal-title" id="modal-title">Nuovo piatto</div>
+    <div class="modal-title" id="modal-title">新增菜品</div>
     <div class="frow">
       <div class="fgroup">
-        <label class="flabel">Numero (es. 42)</label>
-        <input class="finput" id="f-n" type="text" placeholder="Es. 42">
+        <label class="flabel">编号 (如 42)</label>
+        <input class="finput" id="f-n" type="text" placeholder="如 42">
       </div>
       <div class="fgroup">
-        <label class="flabel">Prezzo (€)</label>
+        <label class="flabel">价格 (€)</label>
         <input class="finput" id="f-price" type="number" step="0.50" min="0" placeholder="6.00">
       </div>
     </div>
     <div class="fgroup">
-      <label class="flabel">Nome piatto</label>
-      <input class="finput" id="f-name" type="text" placeholder="Es. Pollo al Curry">
+      <label class="flabel">菜品名称</label>
+      <input class="finput" id="f-name" type="text" placeholder="如 咖喱鸡">
     </div>
     <div class="fgroup">
-      <label class="flabel">Descrizione / Ingredienti</label>
-      <textarea class="ftextarea" id="f-desc" placeholder="Es. Bambu, cipolla, salsa curry"></textarea>
+      <label class="flabel">描述 / 食材</label>
+      <textarea class="ftextarea" id="f-desc" placeholder="如 竹笋, 洋葱, 咖喱酱"></textarea>
     </div>
     <div class="frow">
       <div class="fgroup">
-        <label class="flabel">Categoria</label>
+        <label class="flabel">分类</label>
         <select class="fselect" id="f-cat"></select>
       </div>
       <div class="fgroup">
-        <label class="flabel">Quantità (es. 2pz)</label>
-        <input class="finput" id="f-qty" type="text" placeholder="opzionale">
+        <label class="flabel">数量 (如 2pz)</label>
+        <input class="finput" id="f-qty" type="text" placeholder="可选">
       </div>
     </div>
     <div class="fgroup">
-      <label class="flabel">Surgelato</label>
+      <label class="flabel">冷冻</label>
       <select class="fselect" id="f-frozen">
         <option value="0">No</option>
         <option value="1">Sì ❄</option>
       </select>
     </div>
     <div class="modal-btns">
-      <button class="modal-cancel" id="modal-cancel">Annulla</button>
-      <button class="modal-save" id="modal-save">Salva</button>
+      <button class="modal-cancel" id="modal-cancel">取消</button>
+      <button class="modal-save" id="modal-save">保存</button>
     </div>
   </div>
 </div>
@@ -168,27 +168,27 @@ const db  = getFirestore(app);
 // ── CATEGORIES (fixed) ────────────────────────────────────────────────────────
 const CATS = [
   {id:"antipasti",  label:"Antipasti",   icon:"🥢"},
-  {id:"box",        label:"Menu Box",    icon:"📦"},
-  {id:"poke",       label:"Poke Bowl",   icon:"🥗"},
-  {id:"riso-pasta", label:"Riso e Pasta",icon:"🍜"},
-  {id:"pollo",      label:"Pollo",       icon:"🍗"},
-  {id:"maiale-anatra",label:"Maiale/Anatra",icon:"🦆"},
-  {id:"manzo",      label:"Manzo",       icon:"🥩"},
-  {id:"pesce",      label:"Pesce/Crost.",icon:"🦐"},
-  {id:"contorno",   label:"Contorno",    icon:"🥦"},
-  {id:"nighiri",    label:"Nighiri",     icon:"🍣"},
-  {id:"gunkan",     label:"Gunkan",      icon:"🌊"},
-  {id:"temaki",     label:"Temaki",      icon:"🌮"},
-  {id:"hossomaki",  label:"Hossomaki",   icon:"🌀"},
-  {id:"hosso-fritto",label:"Hosso Fritto",icon:"🔥"},
-  {id:"uramaki",    label:"Uramaki",     icon:"🎯"},
-  {id:"sushi-misto",label:"Sushi Misto", icon:"🎌"},
-  {id:"tartare",    label:"Tartare/Sash.",icon:"🐟"},
-  {id:"cena",       label:"Menu Cena",   icon:"🌙"},
-  {id:"dolci",      label:"Dolci",       icon:"🍡"},
-  {id:"bevande",    label:"Bevande",     icon:"🍺"},
-  {id:"vini",       label:"Vini",        icon:"🍷"},
-  {id:"liquori",    label:"Liquori",     icon:"🥃"},
+  {id:"box",        label:"套餐盒",    icon:"📦"},
+  {id:"poke",       label:"波奇碗",   icon:"🥗"},
+  {id:"riso-pasta", label:"米饭/面食",icon:"🍜"},
+  {id:"pollo",      label:"鸡肉",       icon:"🍗"},
+  {id:"maiale-anatra",label:"猪肉/鸭肉",icon:"🦆"},
+  {id:"manzo",      label:"牛肉",       icon:"🥩"},
+  {id:"pesce",      label:"海鲜",icon:"🦐"},
+  {id:"contorno",   label:"配菜",    icon:"🥦"},
+  {id:"nighiri",    label:"握寿司",     icon:"🍣"},
+  {id:"gunkan",     label:"军舰卷",      icon:"🌊"},
+  {id:"temaki",     label:"手卷",      icon:"🌮"},
+  {id:"hossomaki",  label:"细卷",   icon:"🌀"},
+  {id:"hosso-fritto",label:"炸细卷",icon:"🔥"},
+  {id:"uramaki",    label:"反卷",     icon:"🎯"},
+  {id:"sushi-misto",label:"综合寿司", icon:"🎌"},
+  {id:"tartare",    label:"刺身/鞑靼",icon:"🐟"},
+  {id:"cena",       label:"晚餐套餐",   icon:"🌙"},
+  {id:"dolci",      label:"甜点",       icon:"🍡"},
+  {id:"bevande",    label:"饮料",     icon:"🍺"},
+  {id:"vini",       label:"葡萄酒",        icon:"🍷"},
+  {id:"liquori",    label:"酒水",     icon:"🥃"},
 ];
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
@@ -226,7 +226,7 @@ function buildCatTabs(){
 
 // ── FIRESTORE SYNC ────────────────────────────────────────────────────────────
 function startSync(){
-  setSyncBadge("⏳ sync...", false);
+  setSyncBadge("⏳ 同步中...", false);
   unsub = onSnapshot(collection(db, "menu"), snap => {
     allItems = snap.docs.map(d => ({docId: d.id, ...d.data()}));
     // Sort by category order then by n
@@ -235,10 +235,10 @@ function startSync(){
       if(ci!==0) return ci;
       return String(a.n).localeCompare(String(b.n), undefined, {numeric:true});
     });
-    setSyncBadge("● live", false);
+    setSyncBadge("● 实时", false);
     renderItems();
   }, err => {
-    setSyncBadge("✗ offline", true);
+    setSyncBadge("✗ 离线", true);
   });
 }
 
@@ -253,23 +253,23 @@ function renderItems(){
   const wrap = document.getElementById("items-wrap");
   const filtered = allItems.filter(it => it.catId === curCat);
   if(!filtered.length){
-    wrap.innerHTML = '<div class="empty-msg">Nessun piatto in questa categoria.<br>Clicca "+ Nuovo piatto" per aggiungerne uno.</div>';
+    wrap.innerHTML = '<div class="empty-msg">Nessun piatto in questa categoria.<br>Clicca "+ 新增菜品" per aggiungerne uno.</div>';
     return;
   }
   wrap.innerHTML = filtered.map(it => `
     <div class="item-row${it.sospeso?" sospeso":""}" data-doc="${it.docId}">
       <div class="item-head">
         <span class="item-num">${it.n}</span>
-        <span class="item-name">${it.name}${it.sospeso?'<span class="badge-sospeso">SOSPESO</span>':''}</span>
+        <span class="item-name">${it.name}${it.sospeso?'<span class="badge-sospeso">已暂停</span>':''}</span>
         ${it.f?'<span style="color:#6ab0f5;font-size:12px">❄</span>':''}
         ${it.qty?`<span style="color:#888;font-size:11px">${it.qty}</span>`:''}
         <span class="item-price">€ ${Number(it.price).toFixed(2).replace(".",",")}</span>
       </div>
       ${it.desc?`<div class="item-desc">${it.desc}</div>`:''}
       <div class="item-actions">
-        <button class="act-btn act-edit" data-action="edit" data-doc="${it.docId}">✏️ Modifica</button>
-        <button class="act-btn act-suspend" data-action="suspend" data-doc="${it.docId}">${it.sospeso?"▶️ Riattiva":"⏸ Sospendi"}</button>
-        <button class="act-btn act-delete" data-action="delete" data-doc="${it.docId}">🗑 Elimina</button>
+        <button class="act-btn act-edit" data-action="edit" data-doc="${it.docId}">✏️ 修改</button>
+        <button class="act-btn act-suspend" data-action="suspend" data-doc="${it.docId}">${it.sospeso?"▶️ 恢复":"⏸ 暂停"}</button>
+        <button class="act-btn act-delete" data-action="delete" data-doc="${it.docId}">🗑 删除</button>
       </div>
     </div>`).join("");
 
@@ -291,16 +291,16 @@ function renderItems(){
 async function toggleSuspend(item){
   try {
     await updateDoc(doc(db,"menu",item.docId), {sospeso: !item.sospeso});
-    showToast(item.sospeso ? "Piatto riattivato" : "Piatto sospeso");
-  } catch(e){ alert("Errore: "+e.message); }
+    showToast(item.sospeso ? "菜品已恢复" : "菜品已暂停");
+  } catch(e){ alert("错误："+e.message); }
 }
 
 // ── DELETE ────────────────────────────────────────────────────────────────────
 function confirmDelete(item){
-  if(!confirm('Eliminare "'+item.name+'"?')) return;
+  if(!confirm('确定删除 "'+item.name+'" 吗？')) return;
   deleteDoc(doc(db,"menu",item.docId))
-    .then(()=>showToast("Piatto eliminato"))
-    .catch(e=>alert("Errore: "+e.message));
+    .then(()=>showToast("菜品已删除"))
+    .catch(e=>alert("错误："+e.message));
 }
 
 // ── MODAL ─────────────────────────────────────────────────────────────────────
@@ -312,8 +312,8 @@ function populateCatSelect(){
 
 document.getElementById("add-btn").addEventListener("click", () => openModal(null));
 document.getElementById("seed-btn").addEventListener("click", async () => {
-  if(!confirm("Caricare tutti i piatti di default su Firebase? I piatti esistenti NON verranno sovrascritti.")) return;
-  setSyncBadge("⏳ caricamento...", false);
+  if(!confirm("将所有默认菜品加载到 Firebase？现有菜品不会被覆盖。")) return;
+  setSyncBadge("⏳ 加载中...", false);
   await seedIfEmpty(true); // force=true
 });
 document.getElementById("modal-cancel").addEventListener("click", closeModal);
@@ -325,7 +325,7 @@ document.getElementById("modal-save").addEventListener("click", saveItem);
 function openModal(item){
   populateCatSelect();
   editId = item ? item.docId : null;
-  document.getElementById("modal-title").textContent = item ? "Modifica piatto" : "Nuovo piatto";
+  document.getElementById("modal-title").textContent = item ? "修改菜品" : "新增菜品";
   document.getElementById("f-n").value      = item ? item.n     : "";
   document.getElementById("f-name").value   = item ? item.name  : "";
   document.getElementById("f-desc").value   = item ? (item.desc||"") : "";
@@ -352,7 +352,7 @@ async function saveItem(){
   const catId = document.getElementById("f-cat").value;
 
   if(!n || !name || isNaN(price)){
-    alert("Numero, nome e prezzo sono obbligatori."); return;
+    alert("编号、名称和价格为必填项。"); return;
   }
 
   const data = { n, name, price, desc, qty, f, catId, sospeso: false,
@@ -364,15 +364,15 @@ async function saveItem(){
       const existing = allItems.find(i=>i.docId===editId);
       data.sospeso = existing ? existing.sospeso : false;
       await updateDoc(doc(db,"menu",editId), data);
-      showToast("Piatto aggiornato ✅");
+      showToast("菜品已更新 ✅");
     } else {
       // Generate doc id from catId + n
       const docId = catId + "_" + n.replace(/[^a-z0-9]/gi,"_");
       await setDoc(doc(db,"menu",docId), data);
-      showToast("Piatto aggiunto ✅");
+      showToast("菜品已添加 ✅");
     }
     closeModal();
-  } catch(e){ alert("Errore salvataggio: "+e.message); }
+  } catch(e){ alert("保存错误："+e.message); }
 }
 
 // ── TOAST ─────────────────────────────────────────────────────────────────────
@@ -387,7 +387,7 @@ function showToast(msg){
 async function seedIfEmpty(force){
   const snap = await getDocs(collection(db,"menu"));
   if(!snap.empty && !force) return; // already seeded
-  setSyncBadge("⏳ caricamento dati...", false);
+  setSyncBadge("⏳ 加载数据...", false);
   const batch = writeBatch(db);
   const SEED_MENU = [
   {id:"antipasti",label:"Antipasti",icon:"🥢",items:[
@@ -414,9 +414,9 @@ async function seedIfEmpty(force){
     {n:"16", name:"Zuppa Agropiccante",             desc:"Zucchine, bambu, tofu, carote, uova, fecola di patate, sale",  price:3.00,ps:"€ 3,00"},
     {n:"17", name:"Zuppa di Miso",                  desc:"Tofu, alghe",                                                   price:3.00,ps:"€ 3,00"},
   ]},
-  {id:"box",label:"Menu Box",icon:"📦",special:"box",items:[]},
-  {id:"poke",label:"Poke Bowl",icon:"🥗",special:"poke",items:[]},
-  {id:"riso-pasta",label:"Riso e Pasta",icon:"🍜",items:[
+  {id:"box",label:"套餐盒",icon:"📦",special:"box",items:[]},
+  {id:"poke",label:"波奇碗",icon:"🥗",special:"poke",items:[]},
+  {id:"riso-pasta",label:"米饭/面食",icon:"🍜",items:[
     {n:"18", name:"Ramen",                                   desc:"Verdura mista e manzo con pepe misto",                          price:4.50,ps:"€ 4,50",f:1},
     {n:"18A",name:"Udon",                                    desc:"Verdura mista, uova, carne",                                    price:4.50,ps:"€ 4,50"},
     {n:"19", name:"Riso alla Cantonese",                     desc:"Uova, piselli, prosciutto cotto",                               price:4.00,ps:"€ 4,00"},
@@ -436,7 +436,7 @@ async function seedIfEmpty(force){
     {n:"180",name:"Karaage Ramen Tonkotsu",                  desc:"Tempura di pollo, alghe, cippolline, uova",                     price:9.00,ps:"€ 9,00"},
     {n:"181",name:"Gyuniku Ramen Tonkotsu",                  desc:"Manzo, alghe, cippolline, uova",                                price:9.00,ps:"€ 9,00"},
   ]},
-  {id:"pollo",label:"Pollo",icon:"🍗",items:[
+  {id:"pollo",label:"鸡肉",icon:"🍗",items:[
     {n:"32",name:"Pollo in Salsa Piccante",        desc:"Peperoni, bambu, carote, cipolle, salsa piccante",  price:6.00,ps:"€ 6,00",f:1},
     {n:"33",name:"Spiedini di Pollo Teriyaki",     desc:"",                                                   price:5.50,ps:"€ 5,50",f:1},
     {n:"34",name:"Pollo Fritto",                   desc:"Pollo con pastella fritta",                          price:6.00,ps:"€ 6,00",f:1},
@@ -453,7 +453,7 @@ async function seedIfEmpty(force){
     {n:"43",name:"Anatra all'Arancia",        desc:"",                                  price:6.00,ps:"€ 6,00",f:1},
     {n:"45",name:"Anatra Arrosto con Aromi",  desc:"",                                  price:6.00,ps:"€ 6,00",f:1},
   ]},
-  {id:"manzo",label:"Manzo",icon:"🥩",items:[
+  {id:"manzo",label:"牛肉",icon:"🥩",items:[
     {n:"46",name:"Manzo con Funghi e Bambu",      desc:"Funghi, bambu",                                           price:6.00,ps:"€ 6,00",f:1},
     {n:"47",name:"Manzo al Curry",                desc:"Cipolla, bambu, salsa curry",                             price:6.00,ps:"€ 6,00",f:1},
     {n:"48",name:"Manzo in Salsa Piccante",       desc:"Peperoni, cipolla, bambu, carote, salsa piccante",        price:6.00,ps:"€ 6,00",f:1},
@@ -471,13 +471,13 @@ async function seedIfEmpty(force){
     {n:"59",name:"Gamberoni alla Griglia",         desc:"",                                                        price:7.00,ps:"€ 7,00",f:1},
     {n:"60",name:"Tempura Calamari Fritti",        desc:"",                                                        price:6.50,ps:"€ 6,50",f:1},
   ]},
-  {id:"contorno",label:"Contorno",icon:"🥦",items:[
+  {id:"contorno",label:"配菜",icon:"🥦",items:[
     {n:"61",name:"Tofu con Carne in Salsa Piccante",desc:"Carne di maiale, peperoni, salsa piccante", price:5.00,ps:"€ 5,00"},
     {n:"62",name:"Tofu con Funghi e Bambu",         desc:"",                                          price:5.00,ps:"€ 5,00"},
     {n:"63",name:"Verdure Miste Fritte",            desc:"Carota, zucchine, cipolla, peperoni",       price:4.00,ps:"€ 4,00"},
     {n:"64",name:"Verdure Miste Saltate",           desc:"Germogli di soia, carota, zucchine, sedano",price:4.00,ps:"€ 4,00"},
   ]},
-  {id:"nighiri",label:"Nighiri",icon:"🍣",subtitle:"2pz",items:[
+  {id:"nighiri",label:"握寿司",icon:"🍣",subtitle:"2pz",items:[
     {n:"65",name:"Sake",                   desc:"Salmone",                         price:3.00,ps:"€ 3,00"},
     {n:"66",name:"Tekka",                  desc:"Tonno pinna gialla",              price:3.00,ps:"€ 3,00"},
     {n:"67",name:"Suzuki",                 desc:"Branzino",                        price:3.00,ps:"€ 3,00"},
@@ -490,7 +490,7 @@ async function seedIfEmpty(force){
     {n:"82",name:"Onigiri",                desc:"Tonno cotto, maionese teriyaki",  price:4.00,ps:"€ 4,00",qty:"1pz"},
     {n:"83",name:"Onigiri 1",              desc:"Surimi fritti teriyaki",          price:4.00,ps:"€ 4,00",qty:"1pz",f:1},
   ]},
-  {id:"gunkan",label:"Gunkan",icon:"🌊",subtitle:"2pz",items:[
+  {id:"gunkan",label:"军舰卷",icon:"🌊",subtitle:"2pz",items:[
     {n:"74",name:"Gunkan Sake",         desc:"Salmone, maionese piccante",  price:4.00,ps:"€ 4,00"},
     {n:"75",name:"Gunkan Tekka",        desc:"Tonno, maionese piccante",    price:4.00,ps:"€ 4,00"},
     {n:"76",name:"Gunkan Tobiko",       desc:"Uova di pesce",               price:4.00,ps:"€ 4,00"},
@@ -500,7 +500,7 @@ async function seedIfEmpty(force){
     {n:"80",name:"Gunkan Bianco",       desc:"Sopra philadelphia, salmone", price:5.00,ps:"€ 5,00"},
     {n:"81",name:"Gunkan Venere",       desc:"Sopra philadelphia, salmone", price:5.00,ps:"€ 5,00"},
   ]},
-  {id:"temaki",label:"Temaki",icon:"🌮",subtitle:"1pz",items:[
+  {id:"temaki",label:"手卷",icon:"🌮",subtitle:"1pz",items:[
     {n:"84",name:"Temaki Sake",         desc:"Salmone, avocado",                   price:4.00,ps:"€ 4,00"},
     {n:"85",name:"Temaki Maguro",       desc:"Tonno, avocado",                     price:4.00,ps:"€ 4,00"},
     {n:"86",name:"Temaki Spicy Sake",   desc:"Salmone, maionese piccante",         price:4.00,ps:"€ 4,00"},
@@ -509,7 +509,7 @@ async function seedIfEmpty(force){
     {n:"89",name:"Temaki Ebiten",       desc:"Gamberi fritti, maionese, teriyaki", price:4.00,ps:"€ 4,00",f:1},
     {n:"90",name:"Temaki Philadelphia", desc:"Salmone, philadelphia",              price:4.00,ps:"€ 4,00"},
   ]},
-  {id:"hossomaki",label:"Hossomaki",icon:"🌀",subtitle:"6pz",items:[
+  {id:"hossomaki",label:"细卷",icon:"🌀",subtitle:"6pz",items:[
     {n:"91",name:"Sake Maki",   desc:"Salmone",           price:4.00,ps:"€ 4,00"},
     {n:"92",name:"Tekka Maki",  desc:"Tonno pinna gialla",price:5.00,ps:"€ 5,00"},
     {n:"93",name:"Avocado Maki",desc:"Avocado",           price:4.00,ps:"€ 4,00"},
@@ -517,7 +517,7 @@ async function seedIfEmpty(force){
     {n:"95",name:"Ebi Maki",    desc:"Gamberi cotti",     price:5.00,ps:"€ 5,00",f:1},
     {n:"96",name:"Surimi Maki", desc:"Polpa di granchio", price:5.00,ps:"€ 5,00",f:1},
   ]},
-  {id:"hosso-fritto",label:"Hosso Fritto",icon:"🔥",subtitle:"8pz",items:[
+  {id:"hosso-fritto",label:"炸细卷",icon:"🔥",subtitle:"8pz",items:[
     {n:"97", name:"Ebiten Maki",           desc:"Gamberi fritti, salsa teriyaki",                         price:6.00,ps:"€ 6,00",f:1},
     {n:"98", name:"Fly Maki",              desc:"Gamberi cotto, salsa teriyaki",                          price:6.00,ps:"€ 6,00",f:1},
     {n:"99", name:"Supermaki Philadelphia",desc:"Salmone sopra philadelphia, salsa teriyaki",             price:8.00,ps:"€ 8,00"},
@@ -527,7 +527,7 @@ async function seedIfEmpty(force){
     {n:"101",name:"Futo Fritto",           desc:"Salmone, surimi, philadelphia, tobiko",                  price:8.00,ps:"€ 8,00",qty:"5pz",f:1},
     {n:"102",name:"Futo California",       desc:"Salmone, surimi, avocado, maionese",                     price:8.00,ps:"€ 8,00",qty:"5pz",f:1},
   ]},
-  {id:"uramaki",label:"Uramaki",icon:"🎯",subtitle:"8pz",items:[
+  {id:"uramaki",label:"反卷",icon:"🎯",subtitle:"8pz",items:[
     {n:"103",name:"Ura Sake",               desc:"Salmone, avocado",                                                  price:8.00,ps:"€ 8,00"},
     {n:"104",name:"Ura Philadelphia",       desc:"Salmone, philadelphia",                                             price:8.00,ps:"€ 8,00"},
     {n:"105",name:"Ura Spicy Sake",         desc:"Salmone, salsa piccante",                                           price:10.00,ps:"€ 10,00"},
@@ -553,7 +553,7 @@ async function seedIfEmpty(force){
     {n:"126",name:"Venere Cipolla",         desc:"Riso venere, tempura gamberi, philadelphia",                        price:8.00,ps:"€ 8,00"},
     {n:"153",name:"Rainbow Roll",           desc:"Salmone, avocado, sopra salmone, tonno, branzino, gamberi",         price:10.00,ps:"€ 10,00"},
   ]},
-  {id:"sushi-misto",label:"Sushi Misto",icon:"🎌",items:[
+  {id:"sushi-misto",label:"综合寿司",icon:"🎌",items:[
     {n:"127",name:"Gunkan Mix",desc:"Gunkan misto",                                 price:6.00,ps:"€ 6,00",qty:"5pz",f:1},
     {n:"128",name:"Sushi Mix", desc:"6pz nighiri misto, 6pz hossomaki salmone",     price:12.00,ps:"€ 12,00",qty:"12pz",f:1},
   ]},
@@ -578,7 +578,7 @@ async function seedIfEmpty(force){
     {n:"185",name:"Maguro Crispy Rice",desc:"Riso fritto, tartare tonno, avocado, teriyaki, salsa affumicato", price:4.00,ps:"€ 4,00",qty:"2pz"},
     {n:"186",name:"Cheese Roll",       desc:"Cheddar, pistacchio, teriyaki, tempura di gamberi",               price:10.00,ps:"€ 10,00",qty:"8pz"},
   ]},
-  {id:"cena",label:"Menu Cena",icon:"🌙",note:"Disponibile solo con Menu Cena",items:[
+  {id:"cena",label:"晚餐套餐",icon:"🌙",note:"Disponibile solo con Menu Cena",items:[
     {n:"140", name:"Nighiri Scottato Sake",   desc:"Salsa speciale pistacchio",                                          price:5.00,ps:"€ 5,00"},
     {n:"141", name:"Nighiri Scottato Tekka",  desc:"Salsa speciale pistacchio",                                          price:5.00,ps:"€ 5,00"},
     {n:"142", name:"Nighiri Scottato Suzuki", desc:"Salsa speciale pistacchio",                                          price:5.00,ps:"€ 5,00"},
@@ -602,7 +602,7 @@ async function seedIfEmpty(force){
     {n:"196", name:"Tartufo Roll",            desc:"Tempura gamberi, tonno scottato, tartufo, teriyaki",               price:12.00,ps:"€ 12,00",qty:"8pz"},
     {n:"197", name:"Gunkan Flambe",           desc:"Salmone scottato, pistacchio, teriyaki",                           price:5.00,ps:"€ 5,00",qty:"2pz"},
   ]},
-  {id:"dolci",label:"Dolci",icon:"🍡",items:[
+  {id:"dolci",label:"甜点",icon:"🍡",items:[
     {n:"160",name:"Gelato Fritto",       desc:"Vaniglia, cioccolato",                        price:4.00,ps:"€ 4,00"},
     {n:"161",name:"Nutella Fritta",      desc:"",                                            price:4.00,ps:"€ 4,00"},
     {n:"162",name:"Dolce Cinese",        desc:"Pane al vapore",                              price:4.00,ps:"€ 4,00"},
@@ -621,7 +621,7 @@ async function seedIfEmpty(force){
     {n:"198",name:"Pane Cinese Dolce",   desc:"Latte condensato",                            price:3.00,ps:"€ 3,00",qty:"2pz"},
   ]},
 
-  {id:"bevande",label:"Bevande",icon:"🍺",items:[
+  {id:"bevande",label:"饮料",icon:"🍺",items:[
     {n:"—",name:"Acqua Ferrarelle",           desc:"1 litro",  price:2.50,ps:"€ 2,50"},
     {n:"—",name:"Acqua Naturale",             desc:"1 litro",  price:2.50,ps:"€ 2,50"},
     {n:"—",name:"Coca Cola / Fanta",          desc:"1 litro",  price:4.50,ps:"€ 4,50"},
@@ -636,7 +636,7 @@ async function seedIfEmpty(force){
     {n:"—",name:"Birra Heineken",             desc:"cl 66",    price:4.00,ps:"€ 4,00"},
     {n:"—",name:"Aperol Spritz",              desc:"Bicchiere",price:4.00,ps:"€ 4,00"},
   ]},
-  {id:"vini",label:"Vini",icon:"🍷",items:[
+  {id:"vini",label:"葡萄酒",icon:"🍷",items:[
     {n:"—",name:"Donna Marzia Bianco",          desc:"cl 75",     price:10.00,ps:"€ 10,00"},
     {n:"—",name:"Chardonnay Salento",           desc:"cl 75",     price:14.00,ps:"€ 14,00"},
     {n:"—",name:"Spumante Extra Dry Rose",      desc:"cl 75",     price:14.00,ps:"€ 14,00"},
@@ -691,8 +691,8 @@ async function seedIfEmpty(force){
     }
   }
   for(const b of batches) await b.commit();
-  setSyncBadge("● live", false);
-  showToast("✅ "+count+" piatti caricati!");
+  setSyncBadge("● 实时", false);
+  showToast("✅ 已加载 "+count+" 道菜品！");
 }
 
 // Attach login listeners once
@@ -710,7 +710,7 @@ async function handleLogin(){
     await seedIfEmpty();
     startSync();
   } else {
-    document.getElementById("pin-err").textContent = "Password errata";
+    document.getElementById("pin-err").textContent = "密码错误";
     document.getElementById("pin-input").value = "";
     setTimeout(()=>document.getElementById("pin-err").textContent="",1500);
   }
