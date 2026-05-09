@@ -1241,6 +1241,10 @@ document.addEventListener("DOMContentLoaded", function(){
   document.querySelectorAll(".admin-tab").forEach(function(btn){
     btn.addEventListener("click",function(){setAdminTab(btn.id.replace("atab-",""));});
   });
+  // Expose needed fns to firebase module
+  window.RC = RC;
+  window.menu = menu;
+  window.buildOrderData = buildOrderData;
   // Init
   RT(); RC();
 });
@@ -1249,7 +1253,7 @@ document.addEventListener("DOMContentLoaded", function(){
 <!-- FIREBASE MODULE (separate — imports allowed here) -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, doc, onSnapshot, addDoc, updateDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 var firebaseConfig = {
   apiKey: "AIzaSyDJ0uQcIel_t54APpZ1QiyNvgnQCBSGwhc",
@@ -1262,7 +1266,35 @@ var firebaseConfig = {
 var app = initializeApp(firebaseConfig);
 var db  = getFirestore(app);
 
-// Hook sendOrder into global scope
+// ── Live menu from Firebase ───────────────────────────────────────────────────
+onSnapshot(collection(db, "menu"), function(snap){
+  if(snap.empty) return; // keep static fallback
+  // Rebuild menu array from Firestore docs
+  var liveMap = {}; // catId -> items[]
+  snap.docs.forEach(function(d){
+    var it = d.data();
+    if(it.sospeso) return; // skip suspended
+    if(!liveMap[it.catId]) liveMap[it.catId] = [];
+    liveMap[it.catId].push({
+      n: it.n, name: it.name, desc: it.desc||"",
+      price: it.price, ps: it.ps||("€ "+Number(it.price).toFixed(2).replace(".",",")),
+      qty: it.qty||"", f: it.f||0
+    });
+  });
+  // Sort items by n inside each category
+  Object.keys(liveMap).forEach(function(cat){
+    liveMap[cat].sort(function(a,b){ return String(a.n).localeCompare(String(b.n),undefined,{numeric:true}); });
+  });
+  // Update menu array items (keep category structure, special categories untouched)
+  window.menu.forEach(function(cat){
+    if(cat.special) return; // box/poke stay static
+    if(liveMap[cat.id]) cat.items = liveMap[cat.id];
+  });
+  // Re-render current category
+  window.RC();
+});
+
+// ── sendOrder saves to Firebase ───────────────────────────────────────────────
 window.sendOrder = async function(){
   var data = window.buildOrderData();
   try {
@@ -1271,14 +1303,14 @@ window.sendOrder = async function(){
   } catch(e){ console.warn("Firebase:", e.message); }
 };
 
-// Hook setOrderStatus
+// ── setOrderStatus ────────────────────────────────────────────────────────────
 window.setOrderStatus = async function(id, status){
   try {
     await updateDoc(doc(db,"ordini",id),{status:status});
   } catch(e){ alert("Errore: "+e.message); }
 };
 
-// Hook startListening
+// ── startListening (admin panel) ──────────────────────────────────────────────
 window.startListening = function(){
   if(window._unsubscribe) window._unsubscribe();
   var q = query(collection(db,"ordini"), orderBy("createdAt","desc"));
