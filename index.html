@@ -332,9 +332,8 @@ body{background:#0f0e0c;color:#e8e0d0;font-family:Georgia,serif;min-height:100vh
     <span class="total-amount" id="cartTotal">€ 0,00</span>
   </div>
 
-  <!-- GENERA PDF -->
-  <button class="order-btn" id="orderBtn" onclick="generatePDF()" disabled>
-    📄 Genera ordine PDF
+ <button class="order-btn" id="orderBtn" onclick="sendWhatsAppOrder()" disabled>
+  📲 Invia Ordine WhatsApp
   </button>
 </div>
 
@@ -796,86 +795,143 @@ function setType(t) {
   });
 }
 
-// ═══════════════════════════════ PDF ═════════════════════════════════════════
-function generatePDF() {
-  const entries = Object.values(cart);
-  if (!entries.length) return;
+async function sendWhatsAppOrder() {
 
-  const now = new Date();
-  const dt = now.toLocaleDateString("it-IT") + " " + now.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
-  const total = entries.reduce((s,e) => s + e.item.price * e.qty, 0);
-
-  // Info cliente
-  let infoHTML = "";
-  if (orderType === "tavolo") {
-    const tav  = document.getElementById("f-tavolo").value.trim();
-    const nome = document.getElementById("f-nome-tav").value.trim();
-    if (tav)  infoHTML += `<div class="info-row"><span>Tavolo</span><span>${tav}</span></div>`;
-    if (nome) infoHTML += `<div class="info-row"><span>Nome</span><span>${nome}</span></div>`;
-  } else if (orderType === "asporto") {
-    const nome = document.getElementById("f-nome-asp").value.trim();
-    const tel  = document.getElementById("f-tel-asp").value.trim();
-    const ora  = document.getElementById("f-ora-asp").value;
-    if (nome) infoHTML += `<div class="info-row"><span>Cliente</span><span>${nome}</span></div>`;
-    if (tel)  infoHTML += `<div class="info-row"><span>Telefono</span><span>${tel}</span></div>`;
-    if (ora)  infoHTML += `<div class="info-row"><span>Ritiro ore</span><span>${ora}</span></div>`;
-  } else {
-    const nome  = document.getElementById("f-nome-dom").value.trim();
-    const tel   = document.getElementById("f-tel-dom").value.trim();
-    const via   = document.getElementById("f-via").value.trim();
-    const citta = document.getElementById("f-citta").value.trim();
-    const piano = document.getElementById("f-piano").value.trim();
-    const ora   = document.getElementById("f-ora-dom").value;
-    if (nome) infoHTML += `<div class="info-row"><span>Cliente</span><span>${nome}</span></div>`;
-    if (tel)  infoHTML += `<div class="info-row"><span>Telefono</span><span>${tel}</span></div>`;
-    const addr = [via, citta, piano].filter(Boolean).join(" — ");
-    if (addr) infoHTML += `<div class="info-row"><span>Indirizzo</span><span>${addr}</span></div>`;
-    if (ora)  infoHTML += `<div class="info-row"><span>Consegna ore</span><span>${ora}</span></div>`;
+  if (Object.keys(cart).length === 0) {
+    alert("Il carrello è vuoto");
+    return;
   }
-  const note = document.getElementById("f-note").value.trim();
-  if (note) infoHTML += `<div class="info-row note-row"><span>Note</span><span>${note}</span></div>`;
 
-  const typeLabel = {tavolo:"🪑 TAVOLO", asporto:"🥡 ASPORTO", domicilio:"🛵 DOMICILIO"}[orderType];
+  let customerData = {};
 
-  const rowsHTML = entries.map(e => `
-    <tr>
-      <td class="num">${e.item.n}</td>
-      <td class="name">${e.item.name}${e.item.desc ? `<div class="subdesc">${e.item.desc}</div>` : ""}</td>
-      <td class="qty">x${e.qty}</td>
-      <td class="price">€ ${(e.item.price * e.qty).toFixed(2).replace(".",",")}</td>
-    </tr>`).join("");
+  if (orderType === "tavolo") {
+    customerData = {
+      tavolo: document.getElementById("f-tavolo").value,
+      nome: document.getElementById("f-nome-tav").value
+    };
+  }
 
-  // Write into hidden print area
-  document.getElementById("print-area").innerHTML = `
-    <div class="ph1">
-      <h1>La Giada</h1>
-      <div class="sub">All You Can Eat &mdash; Ordine</div>
-    </div>
-    <div class="pmeta">
-      <div><div class="type-badge">${typeLabel}</div></div>
-      <div>${infoHTML || ""}</div>
-      <div class="pdt">${dt}</div>
-    </div>
-    <table>
-      <thead><tr>
-        <th>N&deg;</th><th>Piatto</th><th class="r">Qt&agrave;</th><th class="r">Prezzo</th>
-      </tr></thead>
-      <tbody>${rowsHTML}</tbody>
-    </table>
-    <div class="total-row">
-      <span class="total-label">TOTALE</span>
-      <span class="total-amount">€ ${total.toFixed(2).replace(".",",")}</span>
-    </div>
-    <div class="pfooter">* Bevande e dessert esclusi dal AYCE | Eccessi: +€10,00 a piatto | * Prodotti surgelati</div>
-  `;
+  if (orderType === "asporto") {
+    customerData = {
+      nome: document.getElementById("f-nome-asp").value,
+      telefono: document.getElementById("f-tel-asp").value,
+      orario: document.getElementById("f-ora-asp").value
+    };
+  }
 
-  // Close drawer first, then print
-  closeDrawer();
-  setTimeout(() => window.print(), 300);
+  if (orderType === "domicilio") {
+    customerData = {
+      nome: document.getElementById("f-nome-dom").value,
+      telefono: document.getElementById("f-tel-dom").value,
+      indirizzo: document.getElementById("f-via").value,
+      citta: document.getElementById("f-citta").value,
+      piano: document.getElementById("f-piano").value,
+      orario: document.getElementById("f-ora-dom").value
+    };
+  }
+
+  const note = document.getElementById("f-note").value;
+
+  let total = 0;
+
+  let itemsText = "";
+
+  Object.values(cart).forEach(c => {
+    const subtotal = c.item.price * c.qty;
+    total += subtotal;
+
+    itemsText += `• ${c.qty}x ${c.item.name} - € ${subtotal.toFixed(2)}\n`;
+  });
+
+  const orderData = {
+    tipo: orderType,
+    cliente: customerData,
+    note,
+    totale: total,
+    items: Object.values(cart).map(c => ({
+      nome: c.item.name,
+      quantita: c.qty,
+      prezzo: c.item.price
+    })),
+    createdAt: serverTimestamp()
+  };
+
+  // SALVA SU FIREBASE
+  try {
+    await addDoc(collection(db, "ordini"), orderData);
+  } catch (err) {
+    console.error(err);
+  }
+
+  // CREA TESTO WHATSAPP
+  let message = `🍣 *NUOVO ORDINE - LA GIADA*\n\n`;
+
+  message += `📌 Tipo ordine: ${orderType.toUpperCase()}\n\n`;
+
+  if (orderType === "tavolo") {
+    message += `🪑 Tavolo: ${customerData.tavolo || "-"}\n`;
+    message += `👤 Nome: ${customerData.nome || "-"}\n\n`;
+  }
+
+  if (orderType === "asporto") {
+    message += `👤 Nome: ${customerData.nome || "-"}\n`;
+    message += `📞 Telefono: ${customerData.telefono || "-"}\n`;
+    message += `⏰ Ritiro: ${customerData.orario || "-"}\n\n`;
+  }
+
+  if (orderType === "domicilio") {
+    message += `👤 Nome: ${customerData.nome || "-"}\n`;
+    message += `📞 Telefono: ${customerData.telefono || "-"}\n`;
+    message += `📍 Indirizzo: ${customerData.indirizzo || "-"}\n`;
+    message += `🏙️ Città: ${customerData.citta || "-"}\n`;
+    message += `🏢 Piano: ${customerData.piano || "-"}\n`;
+    message += `⏰ Consegna: ${customerData.orario || "-"}\n\n`;
+  }
+
+  message += `🍱 *PIATTI*\n`;
+  message += itemsText + "\n";
+
+  if (note) {
+    message += `📝 Note: ${note}\n\n`;
+  }
+
+  message += `💰 Totale: € ${total.toFixed(2)}`;
+
+  const phone = "393801260306";
+
+  const whatsappURL =
+    `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+
+  window.open(whatsappURL, "_blank");
 }
-
 // ═══════════════════════════════ INIT ════════════════════════════════════════
 RT(); RC();
+</script>
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore,
+    collection,
+    addDoc,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDJ0uQcIel_t54APpZ1QiyNvgnQCBSGwhc",
+    authDomain: "lagia-bdd78.firebaseapp.com",
+    projectId: "lagia-bdd78",
+    storageBucket: "lagia-bdd78.firebasestorage.app",
+    messagingSenderId: "976968741464",
+    appId: "1:976968741464:web:e02ea39018a6fb8979502d"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  window.db = db;
+  window.addDoc = addDoc;
+  window.collection = collection;
+  window.serverTimestamp = serverTimestamp;
 </script>
 </body>
 </html>
