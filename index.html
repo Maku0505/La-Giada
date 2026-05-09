@@ -359,7 +359,7 @@ var cur = "antipasti";
 var cart = {};
 var orderType = "asporto";
 var itemRegistry = {};
-var WA_NUMBER = "393888507582"; // es: "393331234567"
+var WA_NUMBER = ""; // es: "393331234567"
 
 // ══════════════════════════════════════════════════════════════════════════════
 // MENU DATA
@@ -1060,7 +1060,7 @@ function buildOrderData(){
     info.ora=document.getElementById("f-ora-dom").value;
   }
   info.note=document.getElementById("f-note").value.trim();
-  return {orderType:orderType,info:info,entries:entries.map(function(e){return {n:e.item.n,name:e.item.name,qty:e.qty,price:e.item.price};}),total:total,status:"nuovo"};
+  return {orderType:orderType,info:info,entries:entries.map(function(e){return {n:e.item.n,name:e.item.name,qty:e.qty,price:e.item.price,desc:e.item.desc||""};}),total:total,status:"nuovo"};
 }
 
 function sendWhatsApp(){
@@ -1076,7 +1076,7 @@ function sendWhatsApp(){
   if(i.note)   lines.push("Note: "+i.note);
   lines.push("");
   lines.push("*Piatti:*");
-  data.entries.forEach(function(e){lines.push("- ["+e.n+"] "+e.name+" x"+e.qty+" - EUR "+(e.price*e.qty).toFixed(2));});
+  data.entries.forEach(function(e){lines.push("- ["+e.n+"] "+e.name+" x"+e.qty+" - EUR "+(e.price*e.qty).toFixed(2)+(e.desc?"\n  _"+e.desc+"_":""));});
   lines.push("");
   lines.push("*TOTALE: EUR "+data.total.toFixed(2)+"*");
   lines.push(new Date().toLocaleString("it-IT"));
