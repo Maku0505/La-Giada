@@ -178,41 +178,7 @@ body{background:#0f0e0c;color:#e8e0d0;font-family:Georgia,serif;min-height:100vh
 .footer{text-align:center;padding:22px 16px;border-top:1px solid #1a1610;color:#4a4440;font-size:11px;line-height:2}
 .footer strong{color:#666}
 
-/* PRINT */
-@media print {
-  body > *:not(#print-area) { display: none !important; }
-  #print-area { display: block !important; }
-}
-#print-area {
-  display: none;
-  font-family: Arial, sans-serif;
-  font-size: 12px;
-  color: #1a1a1a;
-  padding: 20px;
-}
-#print-area .ph1 { text-align:center; border-bottom:2px solid #b8860b; padding-bottom:10px; margin-bottom:14px; }
-#print-area .ph1 h1 { font-size:24px; color:#b8860b; letter-spacing:2px; }
-#print-area .ph1 .sub { font-size:10px; letter-spacing:4px; color:#888; text-transform:uppercase; margin-top:2px; }
-#print-area .pmeta { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; gap:16px; }
-#print-area .type-badge { font-size:13px; font-weight:bold; color:#b8860b; border:1.5px solid #b8860b; padding:4px 12px; border-radius:4px; white-space:nowrap; }
-#print-area .info-row { display:flex; gap:8px; margin-bottom:3px; font-size:11.5px; }
-#print-area .info-row span:first-child { font-weight:bold; color:#555; min-width:90px; }
-#print-area .note-row span:last-child { color:#c0392b; }
-#print-area .pdt { font-size:10px; color:#aaa; white-space:nowrap; }
-#print-area table { width:100%; border-collapse:collapse; margin-top:12px; }
-#print-area thead tr { background:#f5f0e0; }
-#print-area thead th { padding:7px 8px; text-align:left; font-size:10px; letter-spacing:1px; text-transform:uppercase; color:#888; border-bottom:2px solid #b8860b; }
-#print-area thead th.r { text-align:right; }
-#print-area tbody tr { border-bottom:1px solid #eee; }
-#print-area td { padding:7px 8px; vertical-align:top; }
-#print-area td.num { color:#b8860b; font-weight:bold; font-size:11px; white-space:nowrap; width:36px; }
-#print-area td.qty { text-align:right; white-space:nowrap; width:50px; color:#555; }
-#print-area td.price { text-align:right; white-space:nowrap; width:80px; font-weight:bold; }
-#print-area .subdesc { font-size:10px; color:#999; margin-top:2px; font-style:italic; }
-#print-area .total-row { display:flex; justify-content:space-between; align-items:center; border-top:2px solid #b8860b; margin-top:10px; padding-top:10px; }
-#print-area .total-label { font-size:15px; font-weight:bold; }
-#print-area .total-amount { font-size:22px; font-weight:bold; color:#b8860b; }
-#print-area .pfooter { text-align:center; margin-top:18px; font-size:9.5px; color:#aaa; border-top:1px solid #eee; padding-top:10px; }
+
 
 
 /* WHATSAPP BTN */
@@ -264,6 +230,34 @@ body{background:#0f0e0c;color:#e8e0d0;font-family:Georgia,serif;min-height:100vh
 .admin-empty{text-align:center;color:#555;padding:48px;font-size:14px}
 .badge-count{display:inline-flex;align-items:center;justify-content:center;background:#e05555;color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:900;margin-left:5px;vertical-align:middle}
 
+
+/* BOX */
+.box-card{background:#161410;border:1px solid #3a2a10;border-radius:12px;margin-bottom:14px;overflow:hidden}
+.box-head{background:#1c1508;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start}
+.box-title{font-size:16px;color:#f5e6c8;font-weight:700}
+.box-price{color:#c9a96e;font-size:20px;font-weight:700;flex-shrink:0}
+.box-includes{padding:10px 16px;font-size:12px;color:#888;border-bottom:1px solid #1e1a12;line-height:1.7}
+.box-includes span{color:#bbb}
+.box-footer{padding:10px 16px;display:flex;justify-content:space-between;align-items:center}
+
+/* POKE CONFIGURATOR */
+.poke-section{background:#161410;border:1px solid #3a2a10;border-radius:12px;margin-bottom:14px;overflow:hidden}
+.poke-header{background:#1c1508;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.poke-header h3{font-size:16px;color:#f5e6c8;font-weight:700}
+.poke-base-price{color:#c9a96e;font-size:18px;font-weight:700}
+.poke-step{padding:12px 16px;border-bottom:1px solid #1a1610}
+.poke-step-title{font-size:11px;color:#c9a96e;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between}
+.poke-step-title span{color:#666;font-size:10px;letter-spacing:0}
+.poke-options{display:flex;flex-wrap:wrap;gap:7px}
+.poke-opt{padding:6px 12px;border-radius:20px;border:1px solid #2a2010;background:transparent;color:#888;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.poke-opt.sel{border-color:#c9a96e;background:rgba(201,169,110,.15);color:#c9a96e;font-weight:600}
+.poke-opt.extra-sel{border-color:#6ab0f5;background:rgba(106,176,245,.1);color:#6ab0f5;font-weight:600}
+.poke-total-row{padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.poke-total-label{font-size:13px;color:#888}
+.poke-total-val{font-size:18px;color:#c9a96e;font-weight:700}
+.poke-add-btn{display:block;width:calc(100% - 32px);margin:0 16px 14px;padding:12px;background:#c9a96e;color:#0f0e0c;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.poke-add-btn:disabled{opacity:.4;cursor:not-allowed}
+
 </style>
 </head>
 <body>
@@ -296,15 +290,11 @@ body{background:#0f0e0c;color:#e8e0d0;font-family:Georgia,serif;min-height:100vh
     <button class="close-btn" id="drawerClose">✕</button>
   </div>
   <div class="otype">
-    <button class="otype-btn sel" id="bt-tavolo">🪑 Tavolo</button>
-    <button class="otype-btn" id="bt-asporto">🥡 Asporto</button>
+    <button class="otype-btn sel" id="bt-asporto">🥡 Asporto</button>
     <button class="otype-btn" id="bt-domicilio">🛵 Domicilio</button>
   </div>
-  <div class="dform visible" id="form-tavolo">
-    <div class="fgroup"><label class="flabel">Numero tavolo</label><input class="finput" id="f-tavolo" type="text" placeholder="Es. 5"></div>
-    <div class="fgroup"><label class="flabel">Nome (opzionale)</label><input class="finput" id="f-nome-tav" type="text" placeholder="Es. Mario"></div>
-  </div>
-  <div class="dform" id="form-asporto">
+
+  <div class="dform visible" id="form-asporto">
     <div class="fgroup"><label class="flabel">Nome e Cognome</label><input class="finput" id="f-nome-asp" type="text" placeholder="Es. Mario Rossi"></div>
     <div class="fgroup"><label class="flabel">Telefono</label><input class="finput" id="f-tel-asp" type="tel" placeholder="Es. 333 1234567"></div>
     <div class="fgroup"><label class="flabel">Orario ritiro</label><input class="finput" id="f-ora-asp" type="time"></div>
@@ -324,7 +314,6 @@ body{background:#0f0e0c;color:#e8e0d0;font-family:Georgia,serif;min-height:100vh
   </div>
   <div class="cart-items" id="cartItems"><div class="cart-empty">Nessun piatto aggiunto</div></div>
   <div class="cart-total"><span class="total-label">Totale</span><span class="total-amount" id="cartTotal">€ 0,00</span></div>
-  <button class="order-btn" id="orderBtn" disabled>📄 Invia &amp; Genera PDF</button>
   <button class="wa-btn" id="waBtn" disabled>
     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.122 1.529 5.855L0 24l6.335-1.505A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.374l-.36-.214-3.727.977.995-3.645-.235-.374A9.818 9.818 0 1112 21.818z"/></svg>
     Invia su WhatsApp
@@ -354,7 +343,6 @@ body{background:#0f0e0c;color:#e8e0d0;font-family:Georgia,serif;min-height:100vh
   <div class="admin-body" id="admin-body"><div class="admin-empty">Caricamento...</div></div>
 </div>
 
-<div id="print-area"></div>
 
 <div class="footer">
   <strong>SI PREGA DI NON SPRECARE IL CIBO</strong><br>
@@ -369,9 +357,9 @@ body{background:#0f0e0c;color:#e8e0d0;font-family:Georgia,serif;min-height:100vh
 // ══════════════════════════════════════════════════════════════════════════════
 var cur = "antipasti";
 var cart = {};
-var orderType = "tavolo";
+var orderType = "asporto";
 var itemRegistry = {};
-var WA_NUMBER = "393801260306"; // es: "393331234567"
+var WA_NUMBER = "393888507582"; // es: "393331234567"
 
 // ══════════════════════════════════════════════════════════════════════════════
 // MENU DATA
@@ -605,6 +593,9 @@ var menu = [
     {n:"174",name:"Mousse Frutta Bosco", desc:"",                                            price:4.00,ps:"€ 4,00"},
     {n:"198",name:"Pane Cinese Dolce",   desc:"Latte condensato",                            price:3.00,ps:"€ 3,00",qty:"2pz"},
   ]},
+
+  {id:"box",label:"Menu Box",icon:"📦",special:"box",items:[]},
+  {id:"poke",label:"Poke Bowl",icon:"🥗",special:"poke",items:[]},
   {id:"bevande",label:"Bevande",icon:"🍺",items:[
     {n:"—",name:"Acqua Ferrarelle",           desc:"1 litro",  price:2.50,ps:"€ 2,50"},
     {n:"—",name:"Acqua Naturale",             desc:"1 litro",  price:2.50,ps:"€ 2,50"},
@@ -696,6 +687,8 @@ function RT(){
 
 function RC(){
   var c=menu.find(function(x){return x.id===cur;});
+  if(c.special==="box"){renderBox();return;}
+  if(c.special==="poke"){renderPoke();return;}
   document.getElementById("CT").innerHTML=
     '<div class="cat-head">'+
       '<div><span class="cat-title">'+c.icon+' '+c.label+'</span>'+(c.subtitle?'<span class="cat-sub">('+c.subtitle+')</span>':'')+
@@ -703,6 +696,159 @@ function RC(){
       '<div class="cat-line"></div></div>'+
     c.items.map(itemHTML).join("");
 }
+
+// ── BOX ──
+var boxes=[
+  {id:"box1",name:"BOX1",price:20,includes:["1 x Antipasto","1 x Primo","1 x Secondo","16 pezzi di sushi"]},
+  {id:"box2",name:"BOX2",price:40,includes:["2 x Antipasti","2 x Primi","2 x Secondi","32 pezzi di sushi"]},
+  {id:"box3",name:"BOX3",price:35,includes:["50 pezzi di sushi"]},
+];
+
+function renderBox(){
+  var ct=document.getElementById("CT");
+  ct.innerHTML='<div class="cat-head"><div><span class="cat-title">📦 Menu Box</span></div><div class="cat-note">Per ordini e info: 388 850 7582 / 099 400 6230</div><div class="cat-line"></div></div>';
+  boxes.forEach(function(b){
+    var k="box|"+b.id;
+    itemRegistry[k]={n:b.id,name:b.name,price:b.price,ps:"€ "+b.price.toFixed(2),desc:b.includes.join(", ")};
+    var q=cart[k]?cart[k].qty:0;
+    var uid=k.replace(/[^a-z0-9]/gi,"_");
+    var div=document.createElement("div");
+    div.className="box-card";
+    div.innerHTML=
+      '<div class="box-head">'+
+        '<div><div class="box-title">'+b.name+'</div></div>'+
+        '<div class="box-price">€ '+b.price+'</div>'+
+      '</div>'+
+      '<div class="box-includes">'+b.includes.map(function(s){return '<span>'+s+'</span>';}).join(' &nbsp;·&nbsp; ')+'</div>'+
+      '<div class="box-footer">'+
+        '<div class="qty-ctrl">'+
+          '<button class="qty-btn" data-k="'+k+'" data-d="-1">&#8722;</button>'+
+          '<div class="qty-num" id="qn_'+uid+'">'+q+'</div>'+
+          '<button class="qty-btn" data-k="'+k+'" data-d="1">+</button>'+
+        '</div>'+
+        '<span style="color:#c9a96e;font-weight:700;font-size:13px">x'+q+' = € '+(b.price*q).toFixed(2)+'</span>'+
+      '</div>';
+    ct.appendChild(div);
+  });
+}
+
+// ── POKE ──
+var pokeConfig={
+  basePrice:9.00,
+  basi:[{n:"Riso bianco"},{n:"Riso venere"},{n:"Meta e meta"}],
+  proteine:[
+    {n:"Gambero cotto"},{n:"Tempura di salmone"},{n:"Tonno cotto"},
+    {n:"Tempura di gamberi"},{n:"Salmone"},{n:"Tonno"},{n:"Surimi"},{n:"Tempura di pollo"}
+  ],
+  condimenti:[
+    {n:"Insalata"},{n:"Pomodoro"},{n:"Mango"},{n:"Avocado"},
+    {n:"Mais"},{n:"Edamame"},{n:"Wakame"},{n:"Nori di alghe"}
+  ],
+  salse:[
+    {n:"Philadelphia"},{n:"Teriyaki"},{n:"Maionese"},{n:"Salsa limone"},
+    {n:"Agropiccante"},{n:"Maionese piccante"},{n:"Salsa di soia"}
+  ],
+  topping:[
+    {n:"Mandorle a scaglie"},{n:"Granella di pistacchio"},{n:"Sesamo"},
+    {n:"Tobiko"},{n:"Cipolla croccante"},{n:"Kataifi"},{n:"Tempura croccanti"}
+  ]
+};
+// Extra costs
+var pokeExtraProteine=0.50, pokeExtraCondimenti=0.50, pokeExtraSalse=0.30, pokeExtraTopping=0.30;
+var pokeSelected={base:null,proteine:[],condimenti:[],salse:[],topping:[]};
+// Limits
+var pokeLimits={proteine:2,condimenti:3,salse:2,topping:1};
+
+function pokeCalcPrice(){
+  var p=pokeConfig.basePrice;
+  if(pokeSelected.proteine.length>2) p+=(pokeSelected.proteine.length-2)*pokeExtraProteine;
+  if(pokeSelected.condimenti.length>3) p+=(pokeSelected.condimenti.length-3)*pokeExtraCondimenti;
+  if(pokeSelected.salse.length>2) p+=(pokeSelected.salse.length-2)*pokeExtraSalse;
+  if(pokeSelected.topping.length>1) p+=(pokeSelected.topping.length-1)*pokeExtraTopping;
+  return p;
+}
+
+function pokeUpdateUI(){
+  var p=pokeCalcPrice();
+  var el=document.getElementById("poke-total-val");
+  if(el) el.textContent="€ "+p.toFixed(2);
+  var btn=document.getElementById("poke-add-btn");
+  if(btn) btn.disabled=!pokeSelected.base||pokeSelected.proteine.length===0||pokeSelected.condimenti.length===0||pokeSelected.salse.length===0;
+}
+
+function pokeToggle(group,name){
+  var arr=pokeSelected[group];
+  var idx=arr.indexOf(name);
+  if(group==="base"){pokeSelected.base=name;}
+  else if(idx>=0){arr.splice(idx,1);}
+  else{arr.push(name);}
+  // Re-render options
+  document.querySelectorAll(".poke-opt[data-group='"+group+"']").forEach(function(btn){
+    var n=btn.dataset.name;
+    if(group==="base") btn.className="poke-opt"+(pokeSelected.base===n?" sel":"");
+    else btn.className="poke-opt"+(arr.indexOf(n)>=0?" extra-sel":"");
+  });
+  pokeUpdateUI();
+}
+
+function pokeAddToCart(){
+  if(!pokeSelected.base||pokeSelected.proteine.length===0) return;
+  var p=pokeCalcPrice();
+  var desc="Base: "+pokeSelected.base+
+    " | Proteine: "+pokeSelected.proteine.join(", ")+
+    " | Condimenti: "+pokeSelected.condimenti.join(", ")+
+    " | Salse: "+pokeSelected.salse.join(", ")+
+    (pokeSelected.topping.length?" | Topping: "+pokeSelected.topping.join(", "):"");
+  var ts=Date.now();
+  var k="poke|"+ts;
+  var item={n:"POKE",name:"Poke Bowl",price:p,ps:"€ "+p.toFixed(2),desc:desc};
+  itemRegistry[k]=item;
+  cart[k]={item:item,qty:1};
+  updateCartUI();
+  // Reset
+  pokeSelected={base:null,proteine:[],condimenti:[],salse:[],topping:[]};
+  renderPoke();
+  // Scroll feedback
+  var btn=document.getElementById("poke-add-btn");
+  if(btn){btn.textContent="✅ Aggiunto!";setTimeout(function(){btn.textContent="Aggiungi al carrello";},1200);}
+}
+
+function renderPokeGroup(group,items,label,sublabel){
+  var arr=pokeSelected[group]||[];
+  return '<div class="poke-step">'+
+    '<div class="poke-step-title"><span>'+label+'</span><span>'+sublabel+'</span></div>'+
+    '<div class="poke-options">'+
+    items.map(function(it){
+      var sel=group==="base"?(pokeSelected.base===it.n?" sel":""):(arr.indexOf(it.n)>=0?" extra-sel":"");
+      return '<button class="poke-opt'+sel+'" data-group="'+group+'" data-name="'+it.n+'">'+it.n+'</button>';
+    }).join("")+
+    '</div></div>';
+}
+
+function renderPoke(){
+  var ct=document.getElementById("CT");
+  var p=pokeCalcPrice();
+  var disabled=!pokeSelected.base||pokeSelected.proteine.length===0||pokeSelected.condimenti.length===0||pokeSelected.salse.length===0;
+  ct.innerHTML=
+    '<div class="cat-head"><div><span class="cat-title">🥗 Poke Bowl</span></div><div class="cat-line"></div></div>'+
+    '<div class="poke-section">'+
+      '<div class="poke-header"><h3>Crea il tuo Poke</h3><span class="poke-base-price">€ 9,00</span></div>'+
+      renderPokeGroup("base",pokeConfig.basi,"Scegli 1 Base","obbligatorio")+
+      renderPokeGroup("proteine",pokeConfig.proteine,"Scegli 2 Proteine","obbligatorio • extra +€0,50")+
+      renderPokeGroup("condimenti",pokeConfig.condimenti,"Scegli 3 Condimenti","obbligatorio • extra +€0,50")+
+      renderPokeGroup("salse",pokeConfig.salse,"Scegli 2 Salse","obbligatorio • extra +€0,30")+
+      renderPokeGroup("topping",pokeConfig.topping,"Scegli 1 Topping","facoltativo • extra +€0,30")+
+      '<div class="poke-total-row"><span class="poke-total-label">Totale poke</span><span class="poke-total-val" id="poke-total-val">€ '+p.toFixed(2)+'</span></div>'+
+      '<button class="poke-add-btn" id="poke-add-btn"'+(disabled?' disabled':'')+'>Aggiungi al carrello</button>'+
+    '</div>';
+
+  // Attach events
+  document.querySelectorAll(".poke-opt").forEach(function(btn){
+    btn.addEventListener("click",function(){pokeToggle(btn.dataset.group,btn.dataset.name);});
+  });
+  document.getElementById("poke-add-btn").addEventListener("click",pokeAddToCart);
+}
+
 
 function SC(id){
   cur=id;
@@ -715,8 +861,8 @@ function doSearch(v){
   var tb=document.getElementById("TB");
   if(!v.trim()){tb.style.display="flex";RC();return;}
   tb.style.display="none";
-  var q=v.toLowerCase();
-  var res=menu.reduce(function(a,c){return a.concat(c.items.filter(function(i){return i.name.toLowerCase().indexOf(q)>=0||i.desc.toLowerCase().indexOf(q)>=0;}));}, []);
+  var q=v.toLowerCase().trim();
+  var res=menu.reduce(function(a,c){return a.concat(c.items.filter(function(i){return i.name.toLowerCase().indexOf(q)>=0||i.desc.toLowerCase().indexOf(q)>=0||i.n.toLowerCase().indexOf(q)>=0;}));}, []);
   document.getElementById("CT").innerHTML=
     '<div class="si">'+res.length+' risultati per "'+v+'"</div>'+res.map(itemHTML).join("");
 }
@@ -751,8 +897,8 @@ function updateCartUI(){
   document.getElementById("cartBtn").style.display=count>0?"flex":"none";
   document.getElementById("cartBtnTxt").textContent=count>0?"Ordine ("+total.toFixed(2).replace(".",",")+" €)":"Ordine";
   document.getElementById("cartTotal").textContent="€ "+total.toFixed(2).replace(".",",");
-  document.getElementById("orderBtn").disabled=count===0;
-  document.getElementById("waBtn").disabled=count===0;
+  var ob=document.getElementById("orderBtn"); if(ob) ob.disabled=count===0;
+  var wb=document.getElementById("waBtn"); if(wb) wb.disabled=count===0;
   if(document.getElementById("drawer").classList.contains("open")) renderCartItems();
 }
 
@@ -795,7 +941,7 @@ function closeDrawer(){
 
 function setType(t){
   orderType=t;
-  ["tavolo","asporto","domicilio"].forEach(function(x){
+  ["asporto","domicilio"].forEach(function(x){
     document.getElementById("bt-"+x).classList.toggle("sel",x===t);
     document.getElementById("form-"+x).classList.toggle("visible",x===t);
   });
@@ -859,7 +1005,6 @@ function renderAdmin(){
     var tl={tavolo:"🪑 Tavolo",asporto:"🥡 Asporto",domicilio:"🛵 Domicilio"}[o.orderType]||o.orderType;
     var ts=o.createdAt?new Date(o.createdAt.seconds*1000).toLocaleString("it-IT",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"—";
     var info="";
-    if(d.tavolo) info+="<strong>Tavolo:</strong> "+d.tavolo+"&nbsp;&nbsp;";
     if(d.nome)   info+="<strong>Nome:</strong> "+d.nome+"&nbsp;&nbsp;";
     if(d.tel)    info+="<strong>Tel:</strong> "+d.tel+"&nbsp;&nbsp;";
     if(d.via)    info+="<strong>Indirizzo:</strong> "+[d.via,d.citta,d.piano].filter(Boolean).join(", ")+"&nbsp;&nbsp;";
@@ -894,10 +1039,7 @@ function buildOrderData(){
   var entries=Object.values(cart);
   var total=entries.reduce(function(s,e){return s+e.item.price*e.qty;},0);
   var info={};
-  if(orderType==="tavolo"){
-    info.tavolo=document.getElementById("f-tavolo").value.trim();
-    info.nome=document.getElementById("f-nome-tav").value.trim();
-  } else if(orderType==="asporto"){
+  if(orderType==="asporto"){
     info.nome=document.getElementById("f-nome-asp").value.trim();
     info.tel=document.getElementById("f-tel-asp").value.trim();
     info.ora=document.getElementById("f-ora-asp").value;
@@ -937,37 +1079,6 @@ function sendWhatsApp(){
 function sendOrder(){/* calls Firebase save then PDF - hooked below */}
 
 // ══════════════════════════════════════════════════════════════════════════════
-// PDF / PRINT
-// ══════════════════════════════════════════════════════════════════════════════
-function generatePDF(){
-  var entries=Object.values(cart);
-  if(!entries.length) return;
-  var now=new Date();
-  var dt=now.toLocaleDateString("it-IT")+" "+now.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
-  var total=entries.reduce(function(s,e){return s+e.item.price*e.qty;},0);
-  var data=buildOrderData();
-  var i=data.info;
-  var infoHTML="";
-  if(i.tavolo) infoHTML+='<div class="info-row"><span>Tavolo</span><span>'+i.tavolo+'</span></div>';
-  if(i.nome)   infoHTML+='<div class="info-row"><span>Cliente</span><span>'+i.nome+'</span></div>';
-  if(i.tel)    infoHTML+='<div class="info-row"><span>Telefono</span><span>'+i.tel+'</span></div>';
-  var addr=[i.via,i.citta,i.piano].filter(Boolean).join(" - ");
-  if(addr)     infoHTML+='<div class="info-row"><span>Indirizzo</span><span>'+addr+'</span></div>';
-  if(i.ora)    infoHTML+='<div class="info-row"><span>Orario</span><span>'+i.ora+'</span></div>';
-  if(i.note)   infoHTML+='<div class="info-row" style="color:#c0392b"><span>Note</span><span>'+i.note+'</span></div>';
-  var tl={tavolo:"🪑 TAVOLO",asporto:"🥡 ASPORTO",domicilio:"🛵 DOMICILIO"}[data.orderType];
-  var rows=entries.map(function(e){return '<tr><td class="num">'+e.item.n+'</td><td>'+e.item.name+(e.item.desc?'<div class="subdesc">'+e.item.desc+'</div>':'')+'</td><td class="qty">x'+e.qty+'</td><td class="price">€ '+(e.item.price*e.qty).toFixed(2).replace(".",",")+'</td></tr>';}).join("");
-  document.getElementById("print-area").innerHTML=
-    '<div class="ph1"><h1>La Giada</h1><div class="sub">All You Can Eat &mdash; Ordine</div></div>'+
-    '<div class="pmeta"><div><div class="type-badge">'+tl+'</div></div><div>'+infoHTML+'</div><div class="pdt">'+dt+'</div></div>'+
-    '<table><thead><tr><th>N&deg;</th><th>Piatto</th><th class="r">Qt&agrave;</th><th class="r">Prezzo</th></tr></thead><tbody>'+rows+'</tbody></table>'+
-    '<div class="total-row"><span class="total-label">TOTALE</span><span class="total-amount">€ '+total.toFixed(2).replace(".",",")+'</span></div>'+
-    '<div class="pfooter">* Bevande e dessert esclusi dal AYCE | Eccessi: +10,00 a piatto | * Prodotti surgelati</div>';
-  closeDrawer();
-  setTimeout(function(){window.print();},300);
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
 // EVENT LISTENERS
 // ══════════════════════════════════════════════════════════════════════════════
 document.addEventListener("DOMContentLoaded", function(){
@@ -983,7 +1094,6 @@ document.addEventListener("DOMContentLoaded", function(){
   document.getElementById("drawerClose").addEventListener("click", closeDrawer);
   document.getElementById("overlay").addEventListener("click", closeDrawer);
   // Order type
-  document.getElementById("bt-tavolo").addEventListener("click",function(){setType("tavolo");});
   document.getElementById("bt-asporto").addEventListener("click",function(){setType("asporto");});
   document.getElementById("bt-domicilio").addEventListener("click",function(){setType("domicilio");});
   // Qty buttons (event delegation)
@@ -994,8 +1104,7 @@ document.addEventListener("DOMContentLoaded", function(){
     if(item) changeQty(k,item,delta);
   });
   // Order + WA buttons
-  document.getElementById("orderBtn").addEventListener("click", function(){ sendOrder(); });
-  document.getElementById("waBtn").addEventListener("click", sendWhatsApp);
+  document.getElementById("waBtn").addEventListener("click", function(){ sendOrder(); sendWhatsApp(); });
   // Admin
   document.getElementById("logo-tap").addEventListener("click", tapLogo);
   document.getElementById("admin-cancel").addEventListener("click", closeAdminOverlay);
@@ -1032,7 +1141,6 @@ window.sendOrder = async function(){
     data.createdAt = serverTimestamp();
     await addDoc(collection(db,"ordini"), data);
   } catch(e){ console.warn("Firebase:", e.message); }
-  window.generatePDF();
 };
 
 // Hook setOrderStatus
